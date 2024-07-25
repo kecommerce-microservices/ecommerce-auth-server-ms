@@ -1,0 +1,20 @@
+logging:
+  level:
+    com.kaua.ecommerce.account.infrastructure: DEBUG
+
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: root
+    password: 123456
+    url: jdbc:h2:mem:auth-server-ms;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+  test:
+    database:
+      replace: none
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
