@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+    id 'java-conventions'
+}
+
+group = 'com.kaua.ecommerce.auth.infrastructure'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}

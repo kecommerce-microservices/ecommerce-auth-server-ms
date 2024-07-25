@@ -1,0 +1,19 @@
+version: '3.7'
+
+services:
+  postgres:
+    container_name: ecommerce-account-ms-postgres
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=accounts-ms
+      - POSTGRES_PASSWORD=123456
+    ports:
+      - "5433:5432"
+    networks:
+      - ecommerce-account-ms-network
+
+networks:
+  ecommerce-account-ms-network:
+    driver: bridge
+  ecommerce-network:
+    driver: bridge

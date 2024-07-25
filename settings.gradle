@@ -1,0 +1,5 @@
+rootProject.name = 'ecommerce-auth-server-ms'
+include 'domain'
+include 'application'
+include 'infrastructure'
+
