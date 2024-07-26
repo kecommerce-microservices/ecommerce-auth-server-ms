@@ -40,6 +40,7 @@ usando oauth2.
 - `GET /api/v1/roles/{id}` - Busca uma role pelo id
 - `GET /api/v1/roles` - Busca todas as roles
 - `GET /api/v1/roles/defaults` - Busca todas as roles padrões
+- `POST /api/v1/users` - Cria um novo usuário
 - Todos os endpoints estão documentados no swagger, para acessar a documentação basta acessar a url do serviço e adicionar `api/swagger-ui/index.html` no final.
 
 ## Instalação

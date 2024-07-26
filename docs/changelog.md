@@ -1,3 +1,7 @@
+# 0.2.0
+- [X] Adicionado a criação do usuário
+- [X] Adicionado a configuração base do auth server
+
 # 0.1.0
 - [X] Adicionado o arquivo de changelog
 - [X] Adicionado o arquivo de readme
