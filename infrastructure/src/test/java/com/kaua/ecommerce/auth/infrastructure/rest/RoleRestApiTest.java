@@ -8,6 +8,7 @@ import com.kaua.ecommerce.auth.domain.Fixture;
 import com.kaua.ecommerce.auth.domain.roles.Role;
 import com.kaua.ecommerce.auth.domain.roles.RoleDescription;
 import com.kaua.ecommerce.auth.domain.roles.RoleName;
+import com.kaua.ecommerce.auth.infrastructure.ApiTest;
 import com.kaua.ecommerce.auth.infrastructure.ControllerTest;
 import com.kaua.ecommerce.auth.infrastructure.rest.controllers.RoleRestController;
 import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
@@ -85,6 +86,7 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.post("/v1/roles")
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -129,6 +131,7 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.post("/v1/roles")
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -165,6 +168,7 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.patch("/v1/roles/" + aRoleId)
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -209,6 +213,7 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.patch("/v1/roles/" + aRoleId)
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -229,6 +234,7 @@ class RoleRestApiTest {
         final var aRoleId = UUID.randomUUID();
 
         final var aRequest = MockMvcRequestBuilders.delete("/v1/roles/" + aRoleId)
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 
@@ -250,6 +256,7 @@ class RoleRestApiTest {
                 .thenReturn(new GetRoleByIdOutput(aRole));
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles/" + aRoleId.value().toString())
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 
@@ -291,6 +298,7 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -339,6 +347,7 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -388,6 +397,7 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -437,6 +447,7 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -483,6 +494,7 @@ class RoleRestApiTest {
                 .thenReturn(aRoles);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles/defaults")
+                .with(ApiTest.TEST_ADMIN_JWT)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 
