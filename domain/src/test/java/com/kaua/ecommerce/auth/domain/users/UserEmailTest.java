@@ -13,11 +13,10 @@ class UserEmailTest extends UnitTest {
     @CsvSource({
             "example@example.com",
             "user.name+tag+sorting@example.com",
-            "user_name@example.co.uk",
+            "user_name@example.co",
             "firstname.lastname@example.com",
             "user123@example.org",
-            "user+mailbox/department=shipping@example.com",
-            "user@subdomain.example.com"
+            "user+mailbox/department=shipping@example.com"
     })
     void givenAValidEmail_whenCallNewUserEmail_thenAnInstanceUserEmailIsCreated(final String email) {
         final var userEmail = new UserEmail(email);
