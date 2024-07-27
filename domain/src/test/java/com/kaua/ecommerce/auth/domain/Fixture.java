@@ -45,7 +45,7 @@ public final class Fixture {
 
         public static Role defaultRole() {
             return Role.create(
-                    new RoleName("customer"),
+                    new RoleName("customer-" + UUID.randomUUID()),
                     new RoleDescription("Customer role"),
                     true
             );
