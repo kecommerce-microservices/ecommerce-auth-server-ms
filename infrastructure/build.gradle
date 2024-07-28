@@ -50,6 +50,7 @@ jacocoTestReport {
                 files(classDirectories.files.collect {
                     fileTree(dir: it, exclude: [
                             'com/kaua/ecommerce/auth/infrastructure/configurations/*',
+                            'com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*',
                             'com/kaua/ecommerce/auth/infrastructure/Main.class'
                     ])
                 })
@@ -72,6 +73,7 @@ testCodeCoverageReport {
                 files(classDirectories.files.collect {
                     fileTree(dir: it, exclude: [
                             'com/kaua/ecommerce/auth/infrastructure/configurations/*',
+                            'com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*',
                             'com/kaua/ecommerce/auth/infrastructure/Main.class'
                     ])
                 })
@@ -85,6 +87,7 @@ jacocoTestCoverageVerification {
                 files(classDirectories.files.collect {
                     fileTree(dir: it, exclude: [
                             'com/kaua/ecommerce/auth/infrastructure/configurations/*',
+                            'com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*',
                             'com/kaua/ecommerce/auth/infrastructure/Main.class'
                     ])
                 })
