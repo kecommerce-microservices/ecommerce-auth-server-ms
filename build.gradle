@@ -8,7 +8,7 @@ sonar {
         property "sonar.organization", "kecommerce-microservices"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.coverage.exclusions", "infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/configurations/**,infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/Main.java"
-        property "sonar.exclusions", "infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/configurations/**,infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/Main.java,infrastructure/src/main/resources/application-test-**.yml,'infrastructure/src/main/com/kaua/ecommerce/auth/infrastructure/oauth2/grants/**'"
+        property "sonar.coverage.exclusions", "infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/configurations/**,infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/Main.java,infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/oauth2/grants/**"
+        property "sonar.exclusions", "infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/configurations/**,infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/Main.java,infrastructure/src/main/resources/application-test-**.yml,infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/oauth2/grants/**"
     }
 }
