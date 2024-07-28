@@ -1,5 +1,7 @@
 package com.kaua.ecommerce.auth.infrastructure.configurations;
 
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.password.CustomPasswordGrantAuthenticationConverter;
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.password.CustomPasswordGrantAuthenticationProvider;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -7,7 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -37,10 +43,27 @@ public class AuthorizationServerConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain authorizationServerSecurityFilterChain(
+            final HttpSecurity http,
+            final AuthenticationManager authenticationManager,
+            final OAuth2AuthorizationService authorizationService,
+            final OAuth2TokenGenerator<?> tokenGenerator
+    ) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .oidc(Customizer.withDefaults());	// Enable OpenID Connect 1.0
+        final var aAuthServer = http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .oidc(Customizer.withDefaults());    // Enable OpenID Connect 1.0
+
+        aAuthServer.tokenEndpoint(tokenEndpoint ->
+                tokenEndpoint.accessTokenRequestConverter(
+                                new CustomPasswordGrantAuthenticationConverter())
+                        .authenticationProvider(
+                                new CustomPasswordGrantAuthenticationProvider(
+                                        authenticationManager,
+                                        authorizationService,
+                                        tokenGenerator
+                                ))
+        );
+
         http
                 // Redirect to the login page when not authenticated from the
                 // authorization endpoint
@@ -135,5 +158,16 @@ public class AuthorizationServerConfig {
                 aAccessTokenGenerator,
                 aRefreshTokenGenerator
         );
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(final AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean
+    public OAuth2AuthorizationService authorizationService() {
+        // Change to JDBC
+        return new InMemoryOAuth2AuthorizationService();
     }
 }
