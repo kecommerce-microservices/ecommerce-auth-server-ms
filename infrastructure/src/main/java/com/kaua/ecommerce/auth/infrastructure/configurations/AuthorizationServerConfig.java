@@ -1,15 +1,21 @@
 package com.kaua.ecommerce.auth.infrastructure.configurations;
 
+import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -17,12 +23,14 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
+import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.time.Duration;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Configuration
 public class AuthorizationServerConfig {
@@ -89,5 +97,43 @@ public class AuthorizationServerConfig {
                 .build();
 
         return new InMemoryRegisteredClientRepository(microservicesClient);
+    }
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
+        return context -> {
+            final var authGrantType = context.getAuthorizationGrantType();
+            final var aClientCredentialsType = AuthorizationGrantType.CLIENT_CREDENTIALS.getValue();
+            // perhaps in future add JWT_BEARER auth grant type
+
+            if (authGrantType.getValue().equals(aClientCredentialsType)) {
+                return;
+            }
+
+            // Add custom claims to the JWT
+            if (context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
+                final var aUserDetails = (UserDetailsImpl) context.getPrincipal();
+
+                context.getClaims()
+                        .claim("authorities", aUserDetails.getAuthorities()
+                                .stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.toSet()));
+            }
+        };
+    }
+
+    @Bean
+    public OAuth2TokenGenerator<?> tokenGenerator(final JWKSource<SecurityContext> jwkSource) {
+        final var aJwtGenerator = new JwtGenerator(new NimbusJwtEncoder(jwkSource));
+        aJwtGenerator.setJwtCustomizer(tokenCustomizer());
+
+        final var aAccessTokenGenerator = new OAuth2AccessTokenGenerator();
+        final var aRefreshTokenGenerator = new OAuth2RefreshTokenGenerator();
+        return new DelegatingOAuth2TokenGenerator(
+                aJwtGenerator,
+                aAccessTokenGenerator,
+                aRefreshTokenGenerator
+        );
     }
 }
