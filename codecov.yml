@@ -11,6 +11,7 @@ coverage:
   ignore:
     - "infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/configurations/*"
     - "infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/Main.class"
+    - "infrastructure/src/main/java/com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*"
 
 comment:
   layout: "reach, diff, flags, files"
