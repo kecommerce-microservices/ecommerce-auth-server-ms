@@ -5,6 +5,8 @@
 - [X] Adicionado o user details para carregar o usuário
 - [X] Adicionado a implementação do granType password
 - [X] Adicionado as tabelas de oauth2 clients e authorization
+- [X] Adicionado a criação via postman do client
+- [X] Adicionado a execução do client
 
 # 0.1.0
 - [X] Adicionado o arquivo de changelog
