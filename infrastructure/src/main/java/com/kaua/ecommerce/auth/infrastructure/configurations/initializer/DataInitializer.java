@@ -3,7 +3,9 @@ package com.kaua.ecommerce.auth.infrastructure.configurations.initializer;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.clients.ClientRegisteredRepositoryImpl;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.clients.persistence.*;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -16,12 +18,25 @@ import java.util.Objects;
 import java.util.Set;
 
 @Component
+@ConditionalOnProperty(
+        value = "auth-server.data-initializer.enabled",
+        havingValue = "true"
+)
 @Profile({"!test-integration"})
 public class DataInitializer implements CommandLineRunner {
 
     private final ClientRegisteredRepositoryImpl clientRepository;
     private final ClientJpaEntityRepository clientJpaEntityRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${auth-server.data-initializer.client.id}")
+    private String clientId;
+
+    @Value("${auth-server.data-initializer.client.secret}")
+    private String clientSecret;
+
+    @Value("${auth-server.data-initializer.client.redirect-uri}")
+    private String redirectUri;
 
     public DataInitializer(
             final ClientRegisteredRepositoryImpl clientRepository,
@@ -39,8 +54,8 @@ public class DataInitializer implements CommandLineRunner {
         if (this.clientJpaEntityRepository.count() == 0) {
             final var aClientDefault = new ClientEntity();
             aClientDefault.setId(IdentifierUtils.generateNewId());
-            aClientDefault.setClientId("ecommerce-microservices");
-            aClientDefault.setSecret(passwordEncoder.encode("123456"));
+            aClientDefault.setClientId(clientId);
+            aClientDefault.setSecret(passwordEncoder.encode(clientSecret));
 
             final var aClientSecretBasicAuthMethod = AuthenticationMethodEntity.from(
                     ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
@@ -73,7 +88,7 @@ public class DataInitializer implements CommandLineRunner {
             );
 
             final var defaultRedirectUrl = RedirectUrlEntity.from(
-                    "http://localhost:5173",
+                    redirectUri,
                     aClientDefault
             );
 
