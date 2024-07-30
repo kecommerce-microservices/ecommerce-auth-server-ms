@@ -81,6 +81,7 @@ public class AuthorizationServerConfig {
         http
                 .oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtConverter())))
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/v1/oauth2-clients/**").hasAuthority("manage-oauth2-clients")
                         .anyRequest().authenticated()
                 )
                 // Form login handles the redirect to the login page from the
