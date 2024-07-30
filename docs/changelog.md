@@ -4,6 +4,7 @@
 - [X] Adicionado a customização do token para carregar as roles
 - [X] Adicionado o user details para carregar o usuário
 - [X] Adicionado a implementação do granType password
+- [X] Adicionado as tabelas de oauth2 clients e authorization
 
 # 0.1.0
 - [X] Adicionado o arquivo de changelog
