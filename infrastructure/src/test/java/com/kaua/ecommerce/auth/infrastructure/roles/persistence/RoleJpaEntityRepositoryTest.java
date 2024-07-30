@@ -23,7 +23,6 @@ class RoleJpaEntityRepositoryTest {
         final var expectedErrorMessage = "not-null property references a null or transient value : com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntity.name";
 
         final var aRole = Fixture.Roles.randomRole();
-        System.out.println(aRole.toString());
         final var aEntity = RoleJpaEntity.toEntity(aRole);
         aEntity.setName(null);
 
