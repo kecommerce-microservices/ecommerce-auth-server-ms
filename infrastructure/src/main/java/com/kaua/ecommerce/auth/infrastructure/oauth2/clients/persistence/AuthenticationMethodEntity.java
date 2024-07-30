@@ -22,7 +22,7 @@ public class AuthenticationMethodEntity {
     public AuthenticationMethodEntity() {
     }
 
-    private AuthenticationMethodEntity(
+    public AuthenticationMethodEntity(
             final String id,
             final String authenticationMethod,
             final ClientEntity client
