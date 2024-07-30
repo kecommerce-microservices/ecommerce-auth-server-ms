@@ -44,6 +44,10 @@ class UserDetailsServiceImplTest {
         Assertions.assertEquals(aUser.getId().value().toString(), aUserDetails.getUsername());
         Assertions.assertEquals(aUser.getPassword().value(), aUserDetails.getPassword());
         Assertions.assertEquals(1, aUserDetails.getAuthorities().size());
+        Assertions.assertTrue(aUserDetails.isAccountNonExpired());
+        Assertions.assertTrue(aUserDetails.isAccountNonLocked());
+        Assertions.assertTrue(aUserDetails.isCredentialsNonExpired());
+        Assertions.assertTrue(aUserDetails.isEnabled());
     }
 
     @Test
