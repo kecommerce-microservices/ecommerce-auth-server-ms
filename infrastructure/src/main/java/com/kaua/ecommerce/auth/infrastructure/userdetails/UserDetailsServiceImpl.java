@@ -37,7 +37,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         final var aUser = this.userJpaEntityRepository.findByEmail(username)
                 .orElseThrow(NotFoundException.with(User.class, username));
 
-        return new UserDetailsImpl(aUser, getAuthorities(aUser));
+        return new UserDetailsImpl(
+                aUser.getId().toString(),
+                aUser.getPassword(),
+                getAuthorities(aUser)
+        );
     }
 
     private Collection<GrantedAuthority> getAuthorities(final UserJpaEntity aUser) {
