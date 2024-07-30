@@ -80,8 +80,8 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
         final OAuth2Authorization.Token<OAuth2AuthorizationCode> aAuthCode = authorization.getToken(OAuth2AuthorizationCode.class);
         if (aAuthCode != null) {
             final var aAuthCodeEntity = new AuthorizationCodeEntity();
-            aAuthCodeEntity.setId(aAuthCode.getToken().getTokenValue());
-            aAuthCodeEntity.setAuthorization(aAuthEntity);
+            aAuthCodeEntity.setId(IdentifierUtils.generateNewId());
+            aAuthCodeEntity.setValue(aAuthCode.getToken().getTokenValue());
             aAuthCodeEntity.setIssuedAt(aAuthCode.getToken().getIssuedAt());
             aAuthCodeEntity.setExpiresAt(aAuthCode.getToken().getExpiresAt());
             aAuthCodeEntity.setMetadata(writeString(aAuthCode.getMetadata()));
