@@ -28,9 +28,19 @@ public final class Fixture {
         }
 
         public static User randomUser(final RoleId aRoleId) {
+            final var aFirstName = faker.name().firstName();
+            final var aFirstNameValid = aFirstName.length() < 3
+                    ? aFirstName + RandomStringUtils.generateValue(3 - aFirstName.length())
+                    : aFirstName;
+
+            final var aLastName = faker.name().lastName();
+            final var aLastNameValid = aLastName.length() < 3
+                    ? aLastName + RandomStringUtils.generateValue(3 - aLastName.length())
+                    : aLastName;
+
             return User.newUser(
                     new CustomerId(IdentifierUtils.generateNewUUID()),
-                    new UserName(faker.name().firstName(), faker.name().lastName()),
+                    new UserName(aFirstNameValid, aLastNameValid),
                     new UserEmail(email()),
                     new UserPassword("12345678Ab*"),
                     Set.of(aRoleId)
@@ -45,7 +55,7 @@ public final class Fixture {
 
         public static Role defaultRole() {
             return Role.create(
-                    new RoleName("customer-" + UUID.randomUUID()),
+                    new RoleName("customer-" + RandomStringUtils.generateValue(2)),
                     new RoleDescription("Customer role"),
                     true
             );
