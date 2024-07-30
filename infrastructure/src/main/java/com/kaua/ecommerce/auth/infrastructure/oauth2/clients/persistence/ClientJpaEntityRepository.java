@@ -17,4 +17,6 @@ public interface ClientJpaEntityRepository extends JpaRepository<ClientEntity, S
             "LEFT JOIN FETCH c.clientSettings " +
             "WHERE c.clientId = :clientId")
     Optional<ClientEntity> findByClientId(@Param("clientId") String clientId);
+
+    boolean existsByClientId(String clientId);
 }
