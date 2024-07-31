@@ -10,35 +10,31 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
-import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
-import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
-import java.time.Duration;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Configuration
+@EnableWebSecurity
 public class AuthorizationServerConfig {
 
     @Bean
@@ -83,7 +79,9 @@ public class AuthorizationServerConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
+                .oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtConverter())))
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/v1/oauth2-clients/**").hasAuthority("manage-oauth2-clients")
                         .anyRequest().authenticated()
                 )
                 // Form login handles the redirect to the login page from the
@@ -100,34 +98,10 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient microservicesClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("internal-microservices")
-                .clientSecret("{noop}secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/oidc-client")
-                .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofMinutes(5))
-                        .refreshTokenTimeToLive(Duration.ofDays(1))
-                        .reuseRefreshTokens(false)
-                        .build())
-                .clientSettings(ClientSettings.builder()
-                        .requireProofKey(true)
-                        .build())
-                .build();
-
-        return new InMemoryRegisteredClientRepository(microservicesClient);
-    }
-
-    @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
         return context -> {
             final var authGrantType = context.getAuthorizationGrantType();
             final var aClientCredentialsType = AuthorizationGrantType.CLIENT_CREDENTIALS.getValue();
-            // perhaps in future add JWT_BEARER auth grant type
 
             if (authGrantType.getValue().equals(aClientCredentialsType)) {
                 return;
@@ -135,7 +109,7 @@ public class AuthorizationServerConfig {
 
             // Add custom claims to the JWT
             if (context.getTokenType().equals(OAuth2TokenType.ACCESS_TOKEN)) {
-                final var aUserDetails = (UserDetailsImpl) context.getPrincipal();
+                final var aUserDetails = (UserDetailsImpl) context.getPrincipal().getPrincipal();
 
                 context.getClaims()
                         .claim("authorities", aUserDetails.getAuthorities()
@@ -166,8 +140,10 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public OAuth2AuthorizationService authorizationService() {
-        // Change to JDBC
-        return new InMemoryOAuth2AuthorizationService();
+    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
+        final var dao = new DaoAuthenticationProvider();
+        dao.setUserDetailsService(userDetailsService);
+        dao.setPasswordEncoder(passwordEncoder());
+        return dao;
     }
 }

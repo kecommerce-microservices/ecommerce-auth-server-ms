@@ -8,5 +8,5 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 public interface ApiTest {
 
     JwtRequestPostProcessor TEST_ADMIN_JWT = jwt()
-            .authorities(new SimpleGrantedAuthority("ROLE_TEST_ADMIN"));
+            .authorities(new SimpleGrantedAuthority("manage-oauth2-clients"));
 }

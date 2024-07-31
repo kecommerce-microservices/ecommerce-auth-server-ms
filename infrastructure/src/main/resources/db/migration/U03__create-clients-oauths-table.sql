@@ -1,0 +1,14 @@
+DROP TABLE authentication_methods;
+DROP TABLE client_settings;
+DROP TABLE grant_types;
+DROP TABLE redirect_urls;
+DROP TABLE scopes;
+DROP TABLE token_settings;
+DROP TABLE clients;
+DROP TABLE authorizations;
+DROP TABLE authorization_codes;
+DROP TABLE access_tokens;
+DROP TABLE refresh_tokens;
+DROP TABLE oidc_id_tokens;
+DROP TABLE user_codes;
+DROP TABLE device_codes;

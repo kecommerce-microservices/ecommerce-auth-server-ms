@@ -55,7 +55,7 @@ public class CustomPasswordGrantAuthenticationProvider implements Authentication
             throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_CLIENT);
         }
 
-        if (!aRegisteredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantType.PASSWORD)) {
+        if (!aRegisteredClient.getAuthorizationGrantTypes().contains(CustomPasswordGrantType.PASSWORD)) {
             throw new OAuth2AuthenticationException(OAuth2ErrorCodes.UNAUTHORIZED_CLIENT);
         }
 
@@ -66,7 +66,7 @@ public class CustomPasswordGrantAuthenticationProvider implements Authentication
                 .registeredClient(aRegisteredClient)
                 .principal(aUsernamePasswordAuth)
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationGrantType(CustomPasswordGrantType.PASSWORD)
                 .authorizationGrant(aPasswordGrantAuthentication);
 
         var aTokenContext = tokenContextBuilder.tokenType(OAuth2TokenType.ACCESS_TOKEN).build();
@@ -85,7 +85,7 @@ public class CustomPasswordGrantAuthenticationProvider implements Authentication
         // Initialize the OAuth2Authorization
         final var aAuthorizationBuilder = OAuth2Authorization.withRegisteredClient(aRegisteredClient)
                 .principalName(aUsernamePasswordAuth.getName())
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationGrantType(CustomPasswordGrantType.PASSWORD)
                 .attribute(Principal.class.getName(), aUsernamePasswordAuth);
 
         if (aGeneratedAccessToken instanceof ClaimAccessor) {
@@ -100,7 +100,7 @@ public class CustomPasswordGrantAuthenticationProvider implements Authentication
 
         // Generate Refresh Token
         OAuth2RefreshToken aRefreshToken = null;
-        if (aRegisteredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantType.PASSWORD)) {
+        if (aRegisteredClient.getAuthorizationGrantTypes().contains(CustomPasswordGrantType.PASSWORD)) {
             aTokenContext = tokenContextBuilder.tokenType(OAuth2TokenType.REFRESH_TOKEN).build();
             final var aGeneratedRefreshToken = this.tokenGenerator.generate(aTokenContext);
             aRefreshToken = (OAuth2RefreshToken) aGeneratedRefreshToken;
