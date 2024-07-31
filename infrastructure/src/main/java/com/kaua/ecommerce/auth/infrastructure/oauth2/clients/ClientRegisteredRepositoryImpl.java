@@ -19,8 +19,6 @@ public class ClientRegisteredRepositoryImpl implements RegisteredClientRepositor
         this.clientJpaEntityRepository = Objects.requireNonNull(clientJpaEntityRepository);
     }
 
-    // TODO: talvez adicionar um cache, assim evitar ficar batendo no db para pegar o client
-
     @Override
     public void save(final RegisteredClient registeredClient) {
         final var aClientEntity = ClientEntity.create(registeredClient);

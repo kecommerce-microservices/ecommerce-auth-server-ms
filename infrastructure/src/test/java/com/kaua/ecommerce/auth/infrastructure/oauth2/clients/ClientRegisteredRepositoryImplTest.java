@@ -2,6 +2,7 @@ package com.kaua.ecommerce.auth.infrastructure.oauth2.clients;
 
 import com.kaua.ecommerce.auth.infrastructure.DatabaseRepositoryTest;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.clients.persistence.ClientJpaEntityRepository;
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.password.CustomPasswordGrantType;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import java.time.Duration;
 
 @DatabaseRepositoryTest
-public class ClientRegisteredRepositoryImplTest {
+class ClientRegisteredRepositoryImplTest {
 
     @Autowired
     private ClientJpaEntityRepository clientJpaEntityRepository;
@@ -30,7 +31,7 @@ public class ClientRegisteredRepositoryImplTest {
                 .clientSecret("client-secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationGrantType(CustomPasswordGrantType.PASSWORD)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
@@ -78,7 +79,7 @@ public class ClientRegisteredRepositoryImplTest {
                 .clientSecret("client-secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
+                .authorizationGrantType(CustomPasswordGrantType.PASSWORD)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.JWT_BEARER)

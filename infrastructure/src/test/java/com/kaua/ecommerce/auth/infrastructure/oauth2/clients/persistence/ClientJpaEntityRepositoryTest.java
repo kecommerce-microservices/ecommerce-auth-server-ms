@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Set;
 
 @DatabaseRepositoryTest
-public class ClientJpaEntityRepositoryTest {
+class ClientJpaEntityRepositoryTest {
 
     @Autowired
     private ClientJpaEntityRepository clientJpaEntityRepository;
@@ -61,11 +61,7 @@ public class ClientJpaEntityRepositoryTest {
         aClientEntity.setClientSettings(aClientEntitySettings);
         aClientEntity.setClientTokenSettings(aTokenSettings);
 
-        Assertions.assertEquals(0, this.clientJpaEntityRepository.count());
-
-        Assertions.assertDoesNotThrow(() -> this.clientJpaEntityRepository.save(aClientEntity));
-
-        Assertions.assertEquals(1, this.clientJpaEntityRepository.count());
+        this.clientJpaEntityRepository.save(aClientEntity);
 
         final var clientEntity = this.clientJpaEntityRepository.findByClientId(aClientEntity.getClientId()).get();
 

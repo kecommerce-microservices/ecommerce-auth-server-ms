@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @IntegrationTest
-public class OAuth2ClientServiceTest {
+class OAuth2ClientServiceTest {
 
     @Autowired
     private OAuth2ClientService oAuth2ClientService;
@@ -126,9 +126,10 @@ public class OAuth2ClientServiceTest {
         );
 
         final var aSavedClient = this.oAuth2ClientService.saveClient(aRequestTwo);
+        final var aSavedClientId = aSavedClient.getId();
 
         Assertions.assertDoesNotThrow(
-                () -> this.oAuth2ClientService.deleteClient(aSavedClient.getId()));
+                () -> this.oAuth2ClientService.deleteClient(aSavedClientId));
     }
 
     @Test
@@ -152,10 +153,11 @@ public class OAuth2ClientServiceTest {
         );
 
         final var aSavedClient = this.oAuth2ClientService.saveClient(aRequest);
+        final var aSavedClientId = aSavedClient.getId();
 
         final var aException = Assertions.assertThrows(
                 DomainException.class,
-                () -> this.oAuth2ClientService.deleteClient(aSavedClient.getId())
+                () -> this.oAuth2ClientService.deleteClient(aSavedClientId)
         );
 
         Assertions.assertEquals("Cannot delete the last oauth2 client", aException.getMessage());

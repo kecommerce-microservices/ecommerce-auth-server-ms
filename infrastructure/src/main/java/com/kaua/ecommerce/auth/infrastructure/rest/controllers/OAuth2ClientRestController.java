@@ -2,6 +2,7 @@ package com.kaua.ecommerce.auth.infrastructure.rest.controllers;
 
 import com.kaua.ecommerce.auth.infrastructure.rest.OAuth2ClientRestApi;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateOAuth2ClientRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.res.CreateOAuth2ClientResponse;
 import com.kaua.ecommerce.auth.infrastructure.services.impl.OAuth2ClientService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,17 +27,14 @@ public class OAuth2ClientRestController implements OAuth2ClientRestApi {
     }
 
     @Override
-    public ResponseEntity<?> createOauth2Client(final CreateOAuth2ClientRequest request) {
+    public ResponseEntity<CreateOAuth2ClientResponse> createOauth2Client(final CreateOAuth2ClientRequest request) {
         log.debug("Creating oauth2 client with request: {}", request);
 
         final var aClient = this.oAuth2ClientService.saveClient(request);
 
         log.info("Created oauth2 client with id: {} and clientId {}", aClient.getId(), aClient.getClientId());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of(
-                        "id", aClient.getId(),
-                        "clientId", aClient.getClientId()
-                ));
+                .body(new CreateOAuth2ClientResponse(aClient.getId(), aClient.getClientId()));
     }
 
     @Override

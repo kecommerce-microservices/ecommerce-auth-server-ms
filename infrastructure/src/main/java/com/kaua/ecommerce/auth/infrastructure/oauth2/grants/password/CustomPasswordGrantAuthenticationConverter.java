@@ -3,7 +3,6 @@ package com.kaua.ecommerce.auth.infrastructure.oauth2.grants.password;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.authentication.AuthenticationConverter;
@@ -19,7 +18,7 @@ public class CustomPasswordGrantAuthenticationConverter implements Authenticatio
     public Authentication convert(final HttpServletRequest request) {
         // grant_type (required): Value MUST be set to "password".
         final var aGrantType = request.getParameter(OAuth2ParameterNames.GRANT_TYPE);
-        if (!AuthorizationGrantType.PASSWORD.getValue().equals(aGrantType)) {
+        if (!CustomPasswordGrantType.PASSWORD.getValue().equals(aGrantType)) {
             return null;
         }
 
@@ -56,7 +55,7 @@ public class CustomPasswordGrantAuthenticationConverter implements Authenticatio
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get(0)));
 
         return new CustomPasswordGrantAuthenticationToken(
-                AuthorizationGrantType.PASSWORD,
+                CustomPasswordGrantType.PASSWORD,
                 aClientPrincipal,
                 aAdditionalParameters
         );

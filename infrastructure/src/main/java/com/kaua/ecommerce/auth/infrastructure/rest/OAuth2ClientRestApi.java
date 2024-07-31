@@ -1,6 +1,7 @@
 package com.kaua.ecommerce.auth.infrastructure.rest;
 
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateOAuth2ClientRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.res.CreateOAuth2ClientResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -23,7 +24,7 @@ public interface OAuth2ClientRestApi {
             @ApiResponse(responseCode = "201", description = "OAuth2 Client created"),
             @ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
-    ResponseEntity<?> createOauth2Client(@RequestBody CreateOAuth2ClientRequest request);
+    ResponseEntity<CreateOAuth2ClientResponse> createOauth2Client(@RequestBody CreateOAuth2ClientRequest request);
 
     @DeleteMapping(value = "/{clientId}")
     @Operation(summary = "Delete OAuth2 Client")

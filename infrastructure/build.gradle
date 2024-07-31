@@ -75,7 +75,7 @@ testCodeCoverageReport {
                     fileTree(dir: it, exclude: [
                             'com/kaua/ecommerce/auth/infrastructure/configurations/*',
                             'com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*',
-                            'com/kaua/ecommerce/auth/infrastructure/oauth2/authroization/*',
+                            'com/kaua/ecommerce/auth/infrastructure/oauth2/authorization/*',
                             'com/kaua/ecommerce/auth/infrastructure/Main.class'
                     ])
                 })
