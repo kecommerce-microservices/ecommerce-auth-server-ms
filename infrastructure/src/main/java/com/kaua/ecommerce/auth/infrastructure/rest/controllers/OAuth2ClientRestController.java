@@ -34,7 +34,7 @@ public class OAuth2ClientRestController implements OAuth2ClientRestApi {
 
         log.info("Created oauth2 client with id: {} and clientId {}", aClient.getId(), aClient.getClientId());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new CreateOAuth2ClientResponse(aClient.getId(), aClient.getClientId()));
+                .body(new CreateOAuth2ClientResponse(aClient.getClientId(), aClient.getId()));
     }
 
     @Override

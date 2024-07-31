@@ -86,7 +86,7 @@ class OAuth2ClientRestApiTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.clientId").value(aClientId));
+                .andExpect(jsonPath("$.client_id").value(aClientId));
 
         Mockito.verify(oAuth2ClientService, Mockito.times(1))
                 .saveClient(createClientRequestCaptor.capture());
