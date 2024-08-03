@@ -1,4 +1,4 @@
-package com.kaua.ecommerce.auth.infrastructure.configurations;
+package com.kaua.ecommerce.auth.infrastructure.configurations.authentication;
 
 import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.utils.CustomTokenClaimsUtils;
 import org.springframework.core.convert.converter.Converter;

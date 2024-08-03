@@ -1,4 +1,4 @@
-package com.kaua.ecommerce.auth.infrastructure.configurations;
+package com.kaua.ecommerce.auth.infrastructure.configurations.authentication;
 
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import org.springframework.core.convert.converter.Converter;
