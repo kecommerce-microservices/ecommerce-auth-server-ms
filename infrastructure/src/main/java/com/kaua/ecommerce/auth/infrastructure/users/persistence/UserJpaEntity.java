@@ -41,6 +41,10 @@ public class UserJpaEntity {
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified;
 
+    @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "mfa_id")
+    private UserMfaJpaEntity mfa;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -65,6 +69,7 @@ public class UserJpaEntity {
             final String password,
             final boolean isDeleted,
             final boolean emailVerified,
+            final UserMfaJpaEntity mfaJpaEntity,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt,
@@ -79,6 +84,7 @@ public class UserJpaEntity {
         this.roles = new HashSet<>();
         this.isDeleted = isDeleted;
         this.emailVerified = emailVerified;
+        this.mfa = mfaJpaEntity;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.deletedAt = deletedAt;
@@ -95,6 +101,7 @@ public class UserJpaEntity {
                 aUser.getPassword().value(),
                 aUser.isDeleted(),
                 aUser.isEmailVerified(),
+                UserMfaJpaEntity.toEntity(aUser.getMfa()),
                 aUser.getCreatedAt(),
                 aUser.getUpdatedAt(),
                 aUser.getDeletedAt().orElse(null),
@@ -118,6 +125,7 @@ public class UserJpaEntity {
                         .collect(Collectors.toSet()),
                 isDeleted(),
                 isEmailVerified(),
+                getMfa().toDomain(),
                 getCreatedAt(),
                 getUpdatedAt(),
                 getDeletedAt()
@@ -198,6 +206,14 @@ public class UserJpaEntity {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public UserMfaJpaEntity getMfa() {
+        return mfa;
+    }
+
+    public void setMfa(UserMfaJpaEntity mfa) {
+        this.mfa = mfa;
     }
 
     public Instant getCreatedAt() {
