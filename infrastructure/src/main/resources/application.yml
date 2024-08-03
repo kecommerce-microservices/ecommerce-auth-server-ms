@@ -5,6 +5,8 @@ auth-server:
       id: ecommerce-microservices
       secret: 123456
       redirect-uri: http://localhost:5173
+  data-keys-initializer:
+    enabled: true
 
 server:
   port: 8080
