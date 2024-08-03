@@ -15,7 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
 @IntegrationTest
-public class MfaGatewayImplTest {
+class MfaGatewayImplTest {
 
     @MockBean
     private KeysService keysService;

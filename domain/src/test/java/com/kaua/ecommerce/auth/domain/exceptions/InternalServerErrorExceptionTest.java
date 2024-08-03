@@ -4,7 +4,7 @@ import com.kaua.ecommerce.auth.domain.UnitTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class InternalServerErrorExceptionTest extends UnitTest {
+class InternalServerErrorExceptionTest extends UnitTest {
 
     @Test
     void givenAValidMessage_whenCreateAnInternalServerException_thenAnInternalServerExceptionShouldBeCreated() {
