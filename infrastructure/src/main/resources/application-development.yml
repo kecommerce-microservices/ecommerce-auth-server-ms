@@ -6,7 +6,7 @@ server:
 
 logging:
   level:
-    com.kaua.ecommerce.account.infrastructure: DEBUG
+    com.kaua.ecommerce.auth.infrastructure: DEBUG
 
 spring:
   datasource:
