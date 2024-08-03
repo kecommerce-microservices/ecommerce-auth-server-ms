@@ -49,8 +49,13 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
+    public void run(String... args) {
+        createDefaultOauthClient();
+
+    }
+
     @Transactional
-    public void run(String... args) throws Exception {
+    private void createDefaultOauthClient() {
         if (this.clientJpaEntityRepository.count() == 0) {
             final var aClientDefault = new ClientEntity();
             aClientDefault.setId(IdentifierUtils.generateNewId());
