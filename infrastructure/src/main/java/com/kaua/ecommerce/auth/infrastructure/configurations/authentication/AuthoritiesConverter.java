@@ -1,5 +1,6 @@
 package com.kaua.ecommerce.auth.infrastructure.configurations;
 
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.utils.CustomTokenClaimsUtils;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,8 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-
-    private static final String AUTHORITIES = "authorities";
 
     @Override
     public Collection<GrantedAuthority> convert(@NonNull final Jwt jwt) {
@@ -29,8 +28,8 @@ public class AuthoritiesConverter implements Converter<Jwt, Collection<GrantedAu
     }
 
     private List<String> extractAuthorities(final Jwt jwt) {
-        return jwt.getClaimAsStringList(AUTHORITIES) == null
+        return jwt.getClaimAsStringList(CustomTokenClaimsUtils.AUTHORITIES) == null
                 ? Collections.emptyList()
-                : jwt.getClaimAsStringList(AUTHORITIES);
+                : jwt.getClaimAsStringList(CustomTokenClaimsUtils.AUTHORITIES);
     }
 }
