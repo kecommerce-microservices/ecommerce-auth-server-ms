@@ -1,8 +1,16 @@
 package com.kaua.ecommerce.auth.infrastructure.rest;
 
+import com.kaua.ecommerce.auth.application.usecases.users.ConfirmUserMfaDeviceUseCase;
+import com.kaua.ecommerce.auth.application.usecases.users.CreateUserMfaUseCase;
 import com.kaua.ecommerce.auth.application.usecases.users.CreateUserUseCase;
+import com.kaua.ecommerce.auth.application.usecases.users.DisableUserMfaUseCase;
+import com.kaua.ecommerce.auth.application.usecases.users.inputs.ConfirmUserMfaDeviceInput;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserInput;
+import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserMfaInput;
+import com.kaua.ecommerce.auth.application.usecases.users.outputs.ConfirmUserMfaDeviceOutput;
+import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserMfaOutput;
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserOutput;
+import com.kaua.ecommerce.auth.application.usecases.users.outputs.DisableUserMfaOutput;
 import com.kaua.ecommerce.auth.infrastructure.ApiTest;
 import com.kaua.ecommerce.auth.infrastructure.ControllerTest;
 import com.kaua.ecommerce.auth.infrastructure.rest.controllers.UserRestController;
@@ -21,6 +29,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ControllerTest(controllers = UserRestController.class)
@@ -32,11 +41,26 @@ class UserRestApiTest {
     @MockBean
     private CreateUserUseCase createUserUseCase;
 
+    @MockBean
+    private CreateUserMfaUseCase createUserMfaUseCase;
+
+    @MockBean
+    private ConfirmUserMfaDeviceUseCase confirmUserMfaDeviceUseCase;
+
+    @MockBean
+    private DisableUserMfaUseCase disableUserMfaUseCase;
+
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
 
+    @Captor
+    private ArgumentCaptor<CreateUserMfaInput> createUserMfaInputCaptor;
+
+    @Captor
+    private ArgumentCaptor<ConfirmUserMfaDeviceInput> confirmUserMfaDeviceInputCaptor;
+
     @Test
-    void givenAValidRequest_whenCallCreateRole_thenReturnUserId() throws Exception {
+    void givenAValidRequest_whenCallCreateUser_thenReturnUserId() throws Exception {
         final var aCustomerId = UUID.randomUUID().toString();
         final var aFirstName = "John";
         final var aLastName = "Doe";
@@ -59,7 +83,8 @@ class UserRestApiTest {
                 """.formatted(aCustomerId, aFirstName, aLastName, aEmail, aPassword);
 
         final var aRequest = MockMvcRequestBuilders.post("/v1/users")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -82,5 +107,129 @@ class UserRestApiTest {
         Assertions.assertEquals(aLastName, aCreateUserInput.lastName());
         Assertions.assertEquals(aEmail, aCreateUserInput.email());
         Assertions.assertEquals(aPassword, aCreateUserInput.password());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallCreateUserMfa_thenReturnUserIdAndQrCode() throws Exception {
+        final var aType = "totp";
+        final var aDeviceName = "device";
+
+        final var aExpectedMfaId = UUID.randomUUID();
+        final var aQrCode = "qr_code";
+
+        Mockito.when(createUserMfaUseCase.execute(any()))
+                .thenAnswer(call -> new CreateUserMfaOutput(String.valueOf(aExpectedMfaId), aQrCode));
+
+        var json = """
+                {
+                    "type": "%s",
+                    "device_name": "%s"
+                }
+                """.formatted(aType, aDeviceName);
+
+        final var aRequest = MockMvcRequestBuilders.post("/v1/users/mfa")
+                .with(ApiTest.admin())
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(json);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedMfaId.toString()))
+                .andExpect(jsonPath("$.qr_code_url").value(aQrCode));
+
+        Mockito.verify(createUserMfaUseCase, Mockito.times(1))
+                .execute(createUserMfaInputCaptor.capture());
+
+        final var aCreateUserMfaInput = createUserMfaInputCaptor.getValue();
+
+        Assertions.assertEquals(aType, aCreateUserMfaInput.type());
+        Assertions.assertEquals(aDeviceName, aCreateUserMfaInput.deviceName());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallConfirmDevice_thenReturnUserId() throws Exception {
+        final var aOtpCode = "123456";
+        final var aValidUntil = "2021-12-31T23:59:59Z";
+
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.when(confirmUserMfaDeviceUseCase.execute(any()))
+                .thenAnswer(call -> new ConfirmUserMfaDeviceOutput(aExpectedUserId));
+
+        var json = """
+                {
+                    "valid_until": "%s"
+                }
+                """.formatted(aValidUntil);
+
+        final var aRequest = MockMvcRequestBuilders.post("/v1/users/mfa/device/confirm")
+                .with(ApiTest.admin())
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .param("otp_code", aOtpCode)
+                .content(json);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
+
+        Mockito.verify(confirmUserMfaDeviceUseCase, Mockito.times(1))
+                .execute(confirmUserMfaDeviceInputCaptor.capture());
+
+        final var aConfirmUserMfaDeviceInput = confirmUserMfaDeviceInputCaptor.getValue();
+
+        Assertions.assertEquals(aOtpCode, aConfirmUserMfaDeviceInput.code());
+        Assertions.assertEquals(aValidUntil, aConfirmUserMfaDeviceInput.validUntil().toString());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallVerifyMfa_thenCallAuthenticationProvider() throws Exception {
+        final var aOtp = "123456";
+
+        final var aRequest = MockMvcRequestBuilders.post("/v1/users/mfa/verify")
+                .with(ApiTest.admin())
+                .with(csrf())
+                .param("otp_code", aOtp)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallDisableMfa_thenCallDisableMfaUseCase() throws Exception {
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.when(disableUserMfaUseCase.execute(any()))
+                .thenAnswer(call -> new DisableUserMfaOutput(aExpectedUserId));
+
+        final var aRequest = MockMvcRequestBuilders.delete("/v1/users/mfa/disable")
+                .with(ApiTest.admin(aExpectedUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
     }
 }
