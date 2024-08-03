@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ControllerTest(controllers = OAuth2ClientRestController.class)
@@ -74,7 +75,8 @@ class OAuth2ClientRestApiTest {
                 .thenAnswer(call -> aInput.toEntity(aClientSecret));
 
         final var aRequest = MockMvcRequestBuilders.post("/v1/oauth2-clients")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(Json.writeValueAsString(aInput));
@@ -111,7 +113,8 @@ class OAuth2ClientRestApiTest {
         final var aClientId = UUID.randomUUID().toString();
 
         final var aRequest = MockMvcRequestBuilders.delete("/v1/oauth2-clients/" + aClientId)
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 
