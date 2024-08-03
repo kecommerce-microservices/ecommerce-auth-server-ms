@@ -17,58 +17,58 @@ public class UserMfaJpaEntity {
     private UUID id;
 
     @Column(name = "mfa_enabled", nullable = false)
-    private boolean mfaEnabled;
+    private boolean mfaEnabledEntity;
 
     @Column(name = "mfa_verified", nullable = false)
-    private boolean mfaVerified;
+    private boolean mfaVerifiedEntity;
 
     @Column(name = "mfa_secret")
-    private String mfaSecret;
+    private String mfaSecretEntity;
 
     @Column(name = "device_name")
-    private String deviceName;
+    private String deviceNameEntity;
 
     @Column(name = "device_verified", nullable = false)
-    private boolean deviceVerified;
+    private boolean deviceVerifiedEntity;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "mfa_type")
-    private UserMfaType mfaType;
+    private UserMfaType mfaTypeEntity;
 
     @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+    private Instant createdAtEntity;
 
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private Instant updatedAtEntity;
 
     @Column(name = "valid_until")
-    private Instant validUntil;
+    private Instant validUntilEntity;
 
     public UserMfaJpaEntity() {
     }
 
     private UserMfaJpaEntity(
             final UUID id,
-            final boolean mfaEnabled,
-            final boolean mfaVerified,
-            final String mfaSecret,
-            final String deviceName,
-            final boolean deviceVerified,
-            final UserMfaType mfaType,
-            final Instant createdAt,
-            final Instant updatedAt,
-            final Instant validUntil
+            final boolean mfaEnabledEntity,
+            final boolean mfaVerifiedEntity,
+            final String mfaSecretEntity,
+            final String deviceNameEntity,
+            final boolean deviceVerifiedEntity,
+            final UserMfaType mfaTypeEntity,
+            final Instant createdAtEntity,
+            final Instant updatedAtEntity,
+            final Instant validUntilEntity
     ) {
         this.id = id;
-        this.mfaEnabled = mfaEnabled;
-        this.mfaVerified = mfaVerified;
-        this.mfaSecret = mfaSecret;
-        this.deviceName = deviceName;
-        this.deviceVerified = deviceVerified;
-        this.mfaType = mfaType;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.validUntil = validUntil;
+        this.mfaEnabledEntity = mfaEnabledEntity;
+        this.mfaVerifiedEntity = mfaVerifiedEntity;
+        this.mfaSecretEntity = mfaSecretEntity;
+        this.deviceNameEntity = deviceNameEntity;
+        this.deviceVerifiedEntity = deviceVerifiedEntity;
+        this.mfaTypeEntity = mfaTypeEntity;
+        this.createdAtEntity = createdAtEntity;
+        this.updatedAtEntity = updatedAtEntity;
+        this.validUntilEntity = validUntilEntity;
     }
 
     public static UserMfaJpaEntity toEntity(final UserMfa aMfa) {
@@ -107,39 +107,39 @@ public class UserMfaJpaEntity {
     }
 
     public boolean isMfaEnabled() {
-        return mfaEnabled;
+        return mfaEnabledEntity;
     }
 
     public boolean isMfaVerified() {
-        return mfaVerified;
+        return mfaVerifiedEntity;
     }
 
     public Optional<String> getMfaSecret() {
-        return Optional.ofNullable(mfaSecret);
+        return Optional.ofNullable(mfaSecretEntity);
     }
 
     public Optional<String> getDeviceName() {
-        return Optional.ofNullable(deviceName);
+        return Optional.ofNullable(deviceNameEntity);
     }
 
     public boolean isDeviceVerified() {
-        return deviceVerified;
+        return deviceVerifiedEntity;
     }
 
     public Optional<UserMfaType> getMfaType() {
-        return Optional.ofNullable(mfaType);
+        return Optional.ofNullable(mfaTypeEntity);
     }
 
     public Instant getCreatedAt() {
-        return createdAt;
+        return createdAtEntity;
     }
 
     public Instant getUpdatedAt() {
-        return updatedAt;
+        return updatedAtEntity;
     }
 
     public Optional<Instant> getValidUntil() {
-        return Optional.ofNullable(validUntil);
+        return Optional.ofNullable(validUntilEntity);
     }
 
     public void setId(UUID id) {
@@ -147,38 +147,38 @@ public class UserMfaJpaEntity {
     }
 
     public void setMfaEnabled(boolean mfaEnabled) {
-        this.mfaEnabled = mfaEnabled;
+        this.mfaEnabledEntity = mfaEnabled;
     }
 
     public void setMfaVerified(boolean mfaVerified) {
-        this.mfaVerified = mfaVerified;
+        this.mfaVerifiedEntity = mfaVerified;
     }
 
     public void setMfaSecret(String mfaSecret) {
-        this.mfaSecret = mfaSecret;
+        this.mfaSecretEntity = mfaSecret;
     }
 
     public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
+        this.deviceNameEntity = deviceName;
     }
 
     public void setDeviceVerified(boolean deviceVerified) {
-        this.deviceVerified = deviceVerified;
+        this.deviceVerifiedEntity = deviceVerified;
     }
 
     public void setMfaType(UserMfaType mfaType) {
-        this.mfaType = mfaType;
+        this.mfaTypeEntity = mfaType;
     }
 
     public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
+        this.createdAtEntity = createdAt;
     }
 
     public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+        this.updatedAtEntity = updatedAt;
     }
 
     public void setValidUntil(Instant validUntil) {
-        this.validUntil = validUntil;
+        this.validUntilEntity = validUntil;
     }
 }
