@@ -22,7 +22,7 @@ import java.util.Optional;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.argThat;
 
-public class DisableUserMfaUseCaseTest extends UseCaseTest {
+class DisableUserMfaUseCaseTest extends UseCaseTest {
 
     @Mock
     private UserRepository userRepository;

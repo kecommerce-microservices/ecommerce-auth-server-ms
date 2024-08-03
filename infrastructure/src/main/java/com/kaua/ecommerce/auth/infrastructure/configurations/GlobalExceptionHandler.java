@@ -1,6 +1,7 @@
 package com.kaua.ecommerce.auth.infrastructure.configurations;
 
 import com.kaua.ecommerce.auth.application.exceptions.UseCaseInputCannotBeNullException;
+import com.kaua.ecommerce.auth.domain.exceptions.InternalServerErrorException;
 import com.kaua.ecommerce.auth.infrastructure.utils.ApiError;
 import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
 import com.kaua.ecommerce.lib.domain.exceptions.NotFoundException;
@@ -35,6 +36,13 @@ public class GlobalExceptionHandler {
         log.error("Handling use case input cannot be null exception: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiError.from(ex.getMessage()));
+    }
+
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ResponseEntity<ApiError> handleInternalServerErrorException(final InternalServerErrorException ex) {
+        log.error("Handling internal server error exception: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiError.from("Internal server error"));
     }
 
     @ExceptionHandler(Exception.class)

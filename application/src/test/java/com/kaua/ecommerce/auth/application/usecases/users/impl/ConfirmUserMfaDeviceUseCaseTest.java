@@ -24,7 +24,7 @@ import java.util.Optional;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.argThat;
 
-public class ConfirmUserMfaDeviceUseCaseTest extends UseCaseTest {
+class ConfirmUserMfaDeviceUseCaseTest extends UseCaseTest {
 
     @Mock
     private UserRepository userRepository;

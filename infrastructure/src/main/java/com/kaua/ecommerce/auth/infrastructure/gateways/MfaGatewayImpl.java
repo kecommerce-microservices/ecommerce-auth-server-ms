@@ -5,6 +5,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.kaua.ecommerce.auth.application.gateways.MfaGateway;
+import com.kaua.ecommerce.auth.domain.exceptions.InternalServerErrorException;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.auth.infrastructure.constants.Constants;
 import com.kaua.ecommerce.auth.infrastructure.services.KeysService;
@@ -73,7 +74,7 @@ public class MfaGatewayImpl implements MfaGateway {
 
             return Base64.getEncoder().encodeToString(pngData);
         } catch (WriterException | IOException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Error generating mfa QR code", e);
         }
     }
 }

@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
-public class CreateUserMfaUseCaseTest extends UseCaseTest {
+class CreateUserMfaUseCaseTest extends UseCaseTest {
 
     @Mock
     private UserRepository userRepository;

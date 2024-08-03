@@ -1,5 +1,6 @@
 package com.kaua.ecommerce.auth.domain.users.mfas;
 
+import com.kaua.ecommerce.auth.domain.UnitTest;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.junit.jupiter.api.Assertions;
@@ -7,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.temporal.ChronoUnit;
 
-public class UserMfaTest {
+class UserMfaTest extends UnitTest {
 
     @Test
     void testCallNewMfa_whenCalled_thenReturnNewUserMfa() {

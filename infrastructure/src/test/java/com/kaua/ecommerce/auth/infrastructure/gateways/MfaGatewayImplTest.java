@@ -3,6 +3,7 @@ package com.kaua.ecommerce.auth.infrastructure.gateways;
 import com.google.zxing.WriterException;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.kaua.ecommerce.auth.domain.Fixture;
+import com.kaua.ecommerce.auth.domain.exceptions.InternalServerErrorException;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.auth.infrastructure.IntegrationTest;
 import com.kaua.ecommerce.auth.infrastructure.services.KeysService;
@@ -84,7 +85,7 @@ public class MfaGatewayImplTest {
         Mockito.when(qrCodeWriter.encode(Mockito.anyString(), Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenThrow(new WriterException());
 
-        Assertions.assertThrows(RuntimeException.class, () -> {
+        Assertions.assertThrows(InternalServerErrorException.class, () -> {
             mfaGatewayImpl.generateConfirmationQrCode(aSecret, aEmail, aIssuer);
         });
     }
