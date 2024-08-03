@@ -1,7 +1,13 @@
 package com.kaua.ecommerce.auth.infrastructure.configurations;
 
+import com.kaua.ecommerce.auth.application.gateways.MfaGateway;
+import com.kaua.ecommerce.auth.application.repositories.UserRepository;
+import com.kaua.ecommerce.auth.infrastructure.configurations.authentication.JwtConverter;
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.mfa.MfaAuthenticationFilter;
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.mfa.MfaAuthenticationProvider;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.password.CustomPasswordGrantAuthenticationConverter;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.password.CustomPasswordGrantAuthenticationProvider;
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.utils.CustomTokenClaimsUtils;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -10,10 +16,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,8 +34,14 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -77,17 +88,32 @@ public class AuthorizationServerConfig {
 
     @Bean
     @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(
+            final HttpSecurity http,
+            final AuthenticationManager authenticationManager,
+            final UserRepository userRepository
+    ) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .oauth2ResourceServer(resource -> resource.jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtConverter())))
+                .addFilterAfter(
+                        new MfaAuthenticationFilter(
+                                authenticationManager,
+                                userRepository
+                        ),
+                        BasicAuthenticationFilter.class
+                )
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/assets/**", "/webjars/**", "/css/**", "/login", "/error").permitAll()
                         .requestMatchers("/v1/oauth2-clients/**").hasAuthority("manage-oauth2-clients")
                         .anyRequest().authenticated()
                 )
                 // Form login handles the redirect to the login page from the
                 // authorization server filter chain
 
-                .formLogin(Customizer.withDefaults());
+                .formLogin(formLogin ->
+                        formLogin.loginPage("/login").permitAll()
+                );
 
         return http.build();
     }
@@ -98,12 +124,25 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*")); // Permite acesso apenas a este domínio
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
         return context -> {
             final var authGrantType = context.getAuthorizationGrantType();
             final var aClientCredentialsType = AuthorizationGrantType.CLIENT_CREDENTIALS.getValue();
 
             if (authGrantType.getValue().equals(aClientCredentialsType)) {
+                context.getClaims()
+                        .claim(CustomTokenClaimsUtils.IS_MICROSERVICE, true);
                 return;
             }
 
@@ -112,7 +151,7 @@ public class AuthorizationServerConfig {
                 final var aUserDetails = (UserDetailsImpl) context.getPrincipal().getPrincipal();
 
                 context.getClaims()
-                        .claim("authorities", aUserDetails.getAuthorities()
+                        .claim(CustomTokenClaimsUtils.AUTHORITIES, aUserDetails.getAuthorities()
                                 .stream()
                                 .map(GrantedAuthority::getAuthority)
                                 .collect(Collectors.toSet()));
@@ -135,15 +174,16 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(final AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+    public AuthenticationManager authenticationManager(
+            final UserRepository userRepository,
+            final UserDetailsService userDetailsService,
+            final MfaGateway mfaGateway
+    ) {
+        final var aMfaProvider = new MfaAuthenticationProvider(userRepository, mfaGateway);
+        final var aDaoProvider = new DaoAuthenticationProvider();
+        aDaoProvider.setUserDetailsService(userDetailsService);
+        aDaoProvider.setPasswordEncoder(passwordEncoder());
 
-    @Bean
-    public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
-        final var dao = new DaoAuthenticationProvider();
-        dao.setUserDetailsService(userDetailsService);
-        dao.setPasswordEncoder(passwordEncoder());
-        return dao;
+        return new ProviderManager(aMfaProvider, aDaoProvider);
     }
 }
