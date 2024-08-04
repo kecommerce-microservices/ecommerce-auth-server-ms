@@ -25,6 +25,9 @@ public class ClientRegisteredRepositoryImpl implements RegisteredClientRepositor
     private static final String OAUTH2_CLIENTS_REF_KEY_PREFIX = "oauth2:clients:ref:";
     private static final String OAUTH2_CLIENTS_OBJECT_KEY_PREFIX = "oauth2:clients:obj:";
 
+    private static final String OAUTH2_CLIENTS_REF_KEY_ID = "id:";
+    private static final String OAUTH2_CLIENTS_REF_KEY_CLIENT_ID = "clientId:";
+
     private static final long EXPIRATION_TIME = 5; // 5 days
     private static final TimeUnit EXPIRATION_TIME_UNIT = TimeUnit.DAYS;
 
@@ -48,14 +51,18 @@ public class ClientRegisteredRepositoryImpl implements RegisteredClientRepositor
     @Transactional(readOnly = true)
     @Override
     public RegisteredClient findById(final String id) {
-        final var aRefKey = OAUTH2_CLIENTS_REF_KEY_PREFIX + "id:" + id;
+        final var aRefKey = OAUTH2_CLIENTS_REF_KEY_PREFIX
+                .concat(OAUTH2_CLIENTS_REF_KEY_CLIENT_ID)
+                .concat(id);
         return this.findClientByRefKey(aRefKey, () -> this.clientJpaEntityRepository.findById(id));
     }
 
     @Transactional(readOnly = true)
     @Override
     public RegisteredClient findByClientId(final String clientId) {
-        final var aRefKey = OAUTH2_CLIENTS_REF_KEY_PREFIX + "clientId:" + clientId;
+        final var aRefKey = OAUTH2_CLIENTS_REF_KEY_PREFIX
+                .concat(OAUTH2_CLIENTS_REF_KEY_CLIENT_ID)
+                .concat(clientId);
         return this.findClientByRefKey(aRefKey, () -> this.clientJpaEntityRepository.findByClientId(clientId));
     }
 
@@ -83,17 +90,25 @@ public class ClientRegisteredRepositoryImpl implements RegisteredClientRepositor
                     // save client object with key
                     this.redisTemplate.opsForValue().set(aObjectKey, aClientJson);
 
+                    final var aIdRefKey = OAUTH2_CLIENTS_REF_KEY_PREFIX
+                            .concat(OAUTH2_CLIENTS_REF_KEY_ID)
+                            .concat(it.getId());
+
+                    final var aClientIdRefKey = OAUTH2_CLIENTS_REF_KEY_PREFIX
+                            .concat(OAUTH2_CLIENTS_REF_KEY_CLIENT_ID)
+                            .concat(it.getClientId());
+
                     // save id ref key
                     this.redisTemplate.opsForValue()
-                            .set(OAUTH2_CLIENTS_REF_KEY_PREFIX + "id:" + it.getId(), aObjectKey);
+                            .set(aIdRefKey, aObjectKey);
 
                     // save clientId ref key
                     this.redisTemplate.opsForValue()
-                            .set(OAUTH2_CLIENTS_REF_KEY_PREFIX + "clientId:" + it.getClientId(), aObjectKey);
+                            .set(aClientIdRefKey, aObjectKey);
 
                     this.redisTemplate.expire(aObjectKey, EXPIRATION_TIME, EXPIRATION_TIME_UNIT);
-                    this.redisTemplate.expire(OAUTH2_CLIENTS_REF_KEY_PREFIX + "id:" + it.getId(), EXPIRATION_TIME, EXPIRATION_TIME_UNIT);
-                    this.redisTemplate.expire(OAUTH2_CLIENTS_REF_KEY_PREFIX + "clientId:" + it.getClientId(), EXPIRATION_TIME, EXPIRATION_TIME_UNIT);
+                    this.redisTemplate.expire(aIdRefKey, EXPIRATION_TIME, EXPIRATION_TIME_UNIT);
+                    this.redisTemplate.expire(aClientIdRefKey, EXPIRATION_TIME, EXPIRATION_TIME_UNIT);
 
                     return it;
                 })
@@ -102,9 +117,9 @@ public class ClientRegisteredRepositoryImpl implements RegisteredClientRepositor
     }
 
     private String getIdFromRefKey(final String refKey) {
-        if (refKey.startsWith(OAUTH2_CLIENTS_REF_KEY_PREFIX + "id:")) {
-            return refKey.substring((OAUTH2_CLIENTS_REF_KEY_PREFIX + "id:").length());
+        if (refKey.startsWith(OAUTH2_CLIENTS_REF_KEY_PREFIX.concat(OAUTH2_CLIENTS_REF_KEY_ID))) {
+            return refKey.substring((OAUTH2_CLIENTS_REF_KEY_PREFIX.concat(OAUTH2_CLIENTS_REF_KEY_ID)).length());
         }
-        return refKey.substring((OAUTH2_CLIENTS_REF_KEY_PREFIX + "clientId:").length());
+        return refKey.substring((OAUTH2_CLIENTS_REF_KEY_PREFIX.concat(OAUTH2_CLIENTS_REF_KEY_CLIENT_ID)).length());
     }
 }
