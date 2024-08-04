@@ -1,6 +1,10 @@
+redis:
+  url: ${redis.hosts:localhost}
+  port: ${redis.ports:6381}
+
 logging:
   level:
-    com.kaua.ecommerce.account.infrastructure: DEBUG
+    com.kaua.ecommerce.auth.infrastructure: DEBUG
 
 spring:
   datasource:
