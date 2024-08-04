@@ -2,6 +2,7 @@ package com.kaua.ecommerce.auth.domain.users;
 
 import com.kaua.ecommerce.auth.domain.UnitTest;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
+import com.kaua.ecommerce.auth.domain.users.mfas.UserMfa;
 import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
@@ -46,6 +47,7 @@ class UserTest extends UnitTest {
         final var aRoles = Set.of(new RoleId(IdentifierUtils.generateNewId()));
         final var aIsDeleted = false;
         final var aEmailVerified = false;
+        final var aUserMfa = UserMfa.newMfa();
         final var aNow = InstantUtils.now();
 
         final var aUser = User.with(
@@ -58,6 +60,7 @@ class UserTest extends UnitTest {
                 aRoles,
                 aIsDeleted,
                 aEmailVerified,
+                aUserMfa,
                 aNow,
                 aNow,
                 null
@@ -89,6 +92,7 @@ class UserTest extends UnitTest {
         final var aRoles = Set.of(new RoleId(IdentifierUtils.generateNewId()));
         final var aIsDeleted = false;
         final var aEmailVerified = false;
+        final var aUserMfa = UserMfa.newMfa();
         final var aNow = InstantUtils.now();
 
         final var aUser = User.with(
@@ -101,6 +105,7 @@ class UserTest extends UnitTest {
                 aRoles,
                 aIsDeleted,
                 aEmailVerified,
+                aUserMfa,
                 aNow,
                 aNow,
                 null
@@ -117,6 +122,7 @@ class UserTest extends UnitTest {
         Assertions.assertTrue(aUserToString.contains("roles=" + aRoles.size()));
         Assertions.assertTrue(aUserToString.contains("isDeleted=" + aIsDeleted));
         Assertions.assertTrue(aUserToString.contains("emailVerified=" + aEmailVerified));
+        Assertions.assertTrue(aUserToString.contains("mfa=" + aUserMfa));
         Assertions.assertTrue(aUserToString.contains("createdAt=" + aNow));
         Assertions.assertTrue(aUserToString.contains("updatedAt=" + aNow));
         Assertions.assertTrue(aUserToString.contains("deletedAt=null"));

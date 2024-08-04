@@ -1,6 +1,7 @@
 package com.kaua.ecommerce.auth.infrastructure.users.persistence;
 
 import com.kaua.ecommerce.auth.domain.Fixture;
+import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.auth.infrastructure.DatabaseRepositoryTest;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntityRepository;
@@ -275,5 +276,61 @@ class UserJpaEntityRepositoryTest {
         Assertions.assertEquals(aEntity.getUpdatedAt(), aEntitySaved.getUpdatedAt());
         Assertions.assertEquals(aEntity.getDeletedAt(), aEntitySaved.getDeletedAt());
         Assertions.assertEquals(aEntity.getVersion(), aEntitySaved.getVersion());
+    }
+
+    @Test
+    void givenAValidSetValuesInUserMfaJpaEntity_whenCallSave_thenReturnUserWithMfaSaved() {
+        final var aRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.save(RoleJpaEntity.toEntity(aRole));
+
+        final var aUser = Fixture.Users.randomUser(aRole.getId());
+        final var aEntity = UserJpaEntity.toEntity(aUser);
+        final var aMfa = UserMfaJpaEntity.toEntity(aUser.getMfa());
+        aMfa.setMfaEnabled(true);
+        aMfa.setMfaVerified(true);
+        aMfa.setMfaSecret("mfaSecret");
+        aMfa.setDeviceName("deviceName");
+        aMfa.setDeviceVerified(true);
+        aMfa.setMfaType(UserMfaType.TOTP);
+        aMfa.setCreatedAt(InstantUtils.now());
+        aMfa.setUpdatedAt(InstantUtils.now());
+        aMfa.setValidUntil(InstantUtils.now());
+        aEntity.setMfa(aMfa);
+
+        final var aEntitySaved = userJpaEntityRepository.save(aEntity);
+
+        Assertions.assertNotNull(aEntitySaved);
+        Assertions.assertEquals(aEntity.getId(), aEntitySaved.getId());
+        Assertions.assertTrue(aEntity.getMfa().isMfaEnabled());
+        Assertions.assertTrue(aEntity.getMfa().isMfaVerified());
+        Assertions.assertEquals(aEntity.getMfa().getMfaSecret(), aEntitySaved.getMfa().getMfaSecret());
+        Assertions.assertEquals(aEntity.getMfa().getDeviceName(), aEntitySaved.getMfa().getDeviceName());
+        Assertions.assertTrue(aEntity.getMfa().isDeviceVerified());
+        Assertions.assertEquals(aEntity.getMfa().getMfaType(), aEntitySaved.getMfa().getMfaType());
+        Assertions.assertEquals(aEntity.getMfa().getCreatedAt(), aEntitySaved.getMfa().getCreatedAt());
+        Assertions.assertEquals(aEntity.getMfa().getUpdatedAt(), aEntitySaved.getMfa().getUpdatedAt());
+        Assertions.assertEquals(aEntity.getMfa().getValidUntil(), aEntitySaved.getMfa().getValidUntil());
+    }
+
+    @Test
+    void givenAnInvalidNullMfaId_whenCallSave_shouldReturnAnException() {
+        final var expectedErrorMessage = "Identifier of entity 'com.kaua.ecommerce.auth.infrastructure.users.persistence.UserMfaJpaEntity' must be manually assigned before calling 'persist()'";
+
+        final var aRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.save(RoleJpaEntity.toEntity(aRole));
+
+        final var aUser = Fixture.Users.randomUser(aRole.getId());
+        final var aEntity = UserJpaEntity.toEntity(aUser);
+        final var aMfa = UserMfaJpaEntity.toEntity(aUser.getMfa());
+        aMfa.setId(null);
+        aEntity.setMfa(aMfa);
+
+        final var actualException = Assertions.assertThrows(JpaSystemException.class,
+                () -> userJpaEntityRepository.save(aEntity));
+
+        final var actualCause = Assertions.assertInstanceOf(IdentifierGenerationException.class,
+                actualException.getCause());
+
+        Assertions.assertEquals(expectedErrorMessage, actualCause.getMessage());
     }
 }

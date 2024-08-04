@@ -26,10 +26,18 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-undertow'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
     implementation 'com.fasterxml.jackson.module:jackson-module-blackbird'
+
+    implementation 'com.warrenstrange:googleauth:1.5.0'
+    implementation 'org.jboss.xnio:xnio-api:3.8.16.Final'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+
+    implementation 'com.google.zxing:core:3.5.2'
+    implementation 'com.google.zxing:javase:3.5.2'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation('org.springframework.security:spring-security-test')
@@ -52,6 +60,8 @@ jacocoTestReport {
                             'com/kaua/ecommerce/auth/infrastructure/configurations/*',
                             'com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*',
                             'com/kaua/ecommerce/auth/infrastructure/oauth2/authorization/*',
+                            'com/kaua/ecommerce/auth/infrastructure/services/local/RSAKeyLocalGeneratorService.class',
+                            'com/kaua/ecommerce/auth/infrastructure/rest/controllers/LoginController.class',
                             'com/kaua/ecommerce/auth/infrastructure/Main.class'
                     ])
                 })
@@ -76,6 +86,8 @@ testCodeCoverageReport {
                             'com/kaua/ecommerce/auth/infrastructure/configurations/*',
                             'com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*',
                             'com/kaua/ecommerce/auth/infrastructure/oauth2/authorization/*',
+                            'com/kaua/ecommerce/auth/infrastructure/services/local/RSAKeyLocalGeneratorService.class',
+                            'com/kaua/ecommerce/auth/infrastructure/rest/controllers/LoginController.class',
                             'com/kaua/ecommerce/auth/infrastructure/Main.class'
                     ])
                 })
@@ -91,6 +103,8 @@ jacocoTestCoverageVerification {
                             'com/kaua/ecommerce/auth/infrastructure/configurations/*',
                             'com/kaua/ecommerce/auth/infrastructure/oauth2/grants/*',
                             'com/kaua/ecommerce/auth/infrastructure/oauth2/authorization/*',
+                            'com/kaua/ecommerce/auth/infrastructure/services/local/RSAKeyLocalGeneratorService.class',
+                            'com/kaua/ecommerce/auth/infrastructure/rest/controllers/LoginController.class',
                             'com/kaua/ecommerce/auth/infrastructure/Main.class'
                     ])
                 })

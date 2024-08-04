@@ -1,6 +1,7 @@
 package com.kaua.ecommerce.auth.domain.users;
 
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
+import com.kaua.ecommerce.auth.domain.users.mfas.UserMfa;
 import com.kaua.ecommerce.lib.domain.AggregateRoot;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
@@ -22,6 +23,7 @@ public class User extends AggregateRoot<UserId> {
     private Set<RoleId> roles;
     private boolean isDeleted;
     private boolean emailVerified;
+    private UserMfa mfa;
     private Instant createdAt;
     private Instant updatedAt;
     private Instant deletedAt;
@@ -36,6 +38,7 @@ public class User extends AggregateRoot<UserId> {
             final Set<RoleId> aRoles,
             final boolean aIsDeleted,
             final boolean aEmailVerified,
+            final UserMfa aMfa,
             final Instant aCreatedAt,
             final Instant aUpdatedAt,
             final Instant aDeletedAt
@@ -48,6 +51,7 @@ public class User extends AggregateRoot<UserId> {
         this.setRoles(aRoles);
         this.setDeleted(aIsDeleted);
         this.setEmailVerified(aEmailVerified);
+        this.setMfa(aMfa);
         this.setCreatedAt(aCreatedAt);
         this.setUpdatedAt(aUpdatedAt);
         this.setDeletedAt(aDeletedAt);
@@ -63,6 +67,8 @@ public class User extends AggregateRoot<UserId> {
         final var aUserId = new UserId(IdentifierUtils.generateNewUUID());
         final var now = InstantUtils.now();
 
+        final var aUserMfa = UserMfa.newMfa();
+
         return new User(
                 aUserId,
                 0,
@@ -73,6 +79,7 @@ public class User extends AggregateRoot<UserId> {
                 aRoles,
                 false,
                 false,
+                aUserMfa,
                 now,
                 now,
                 null
@@ -89,6 +96,7 @@ public class User extends AggregateRoot<UserId> {
             final Set<RoleId> aRoles,
             final boolean aIsDeleted,
             final boolean aEmailVerified,
+            final UserMfa aMfa,
             final Instant aCreatedAt,
             final Instant aUpdatedAt,
             final Instant aDeletedAt
@@ -103,6 +111,7 @@ public class User extends AggregateRoot<UserId> {
                 aRoles,
                 aIsDeleted,
                 aEmailVerified,
+                aMfa,
                 aCreatedAt,
                 aUpdatedAt,
                 aDeletedAt
@@ -135,6 +144,10 @@ public class User extends AggregateRoot<UserId> {
 
     public boolean isEmailVerified() {
         return emailVerified;
+    }
+
+    public UserMfa getMfa() {
+        return mfa;
     }
 
     public Instant getCreatedAt() {
@@ -178,6 +191,10 @@ public class User extends AggregateRoot<UserId> {
         this.emailVerified = emailVerified;
     }
 
+    public void setMfa(final UserMfa mfa) {
+        this.mfa = this.assertArgumentNotNull(mfa, "mfa", SHOULD_NOT_BE_NULL);
+    }
+
     private void setCreatedAt(final Instant createdAt) {
         this.createdAt = this.assertArgumentNotNull(createdAt, "createdAt", SHOULD_NOT_BE_NULL);
     }
@@ -200,6 +217,7 @@ public class User extends AggregateRoot<UserId> {
                 ", roles=" + getRoles().size() +
                 ", isDeleted=" + isDeleted +
                 ", emailVerified=" + emailVerified +
+                ", mfa=" + getMfa().toString() +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", deletedAt=" + getDeletedAt().orElse(null) +

@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ControllerTest(controllers = RoleRestController.class)
@@ -86,7 +87,8 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.post("/v1/roles")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -131,7 +133,8 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.post("/v1/roles")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -168,7 +171,8 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.patch("/v1/roles/" + aRoleId)
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -213,7 +217,8 @@ class RoleRestApiTest {
                 """.formatted(aName, aDescription, aIsDefault);
 
         final var aRequest = MockMvcRequestBuilders.patch("/v1/roles/" + aRoleId)
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json);
@@ -234,7 +239,8 @@ class RoleRestApiTest {
         final var aRoleId = UUID.randomUUID();
 
         final var aRequest = MockMvcRequestBuilders.delete("/v1/roles/" + aRoleId)
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 
@@ -256,7 +262,8 @@ class RoleRestApiTest {
                 .thenReturn(new GetRoleByIdOutput(aRole));
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles/" + aRoleId.value().toString())
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 
@@ -298,7 +305,8 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -347,7 +355,8 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -397,7 +406,8 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -447,7 +457,8 @@ class RoleRestApiTest {
                 .thenReturn(aPagination);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .param("search", "ADMIN")
                 .param("page", "1")
                 .param("per_page", "10")
@@ -494,7 +505,8 @@ class RoleRestApiTest {
                 .thenReturn(aRoles);
 
         final var aRequest = MockMvcRequestBuilders.get("/v1/roles/defaults")
-                .with(ApiTest.TEST_ADMIN_JWT)
+                .with(ApiTest.admin())
+                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .contentType(MediaType.APPLICATION_JSON_VALUE);
 

@@ -5,12 +5,15 @@ import com.kaua.ecommerce.auth.domain.users.*;
 import com.kaua.ecommerce.auth.infrastructure.DatabaseRepositoryTest;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntityRepository;
+import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntityRepository;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
+import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
 @DatabaseRepositoryTest
@@ -102,5 +105,61 @@ class UserRepositoryImplTest {
         Assertions.assertEquals(1, this.userJpaEntityRepository.count());
 
         Assertions.assertTrue(this.userRepositoryImpl.existsByEmail(aEmail.value()));
+    }
+
+    @Test
+    void givenAValidUserId_whenCallFindById_thenReturnUser() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        final var aOutput = this.userRepositoryImpl.findById(aUser.getId().value()).get();
+
+        Assertions.assertNotNull(aOutput);
+        Assertions.assertEquals(aUser.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aUser.getCustomerId().value(), aOutput.getCustomerId().value());
+        Assertions.assertEquals(aUser.getName().firstName(), aOutput.getName().firstName());
+        Assertions.assertEquals(aUser.getName().lastName(), aOutput.getName().lastName());
+        Assertions.assertEquals(aUser.getEmail().value(), aOutput.getEmail().value());
+        Assertions.assertEquals(aUser.getPassword().value(), aOutput.getPassword().value());
+        Assertions.assertEquals(aUser.isDeleted(), aOutput.isDeleted());
+        Assertions.assertEquals(aUser.isEmailVerified(), aOutput.isEmailVerified());
+        Assertions.assertEquals(aUser.getCreatedAt(), aOutput.getCreatedAt());
+        Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
+        Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
+    }
+
+    @Test
+    void givenAValidValues_whenCallUpdateUser_thenUserIsUpdated() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        aUser.getMfa().confirmDevice(InstantUtils.now().plus(30, ChronoUnit.MINUTES));
+
+        final var aOutput = this.userRepositoryImpl.update(aUser);
+
+        Assertions.assertNotNull(aOutput);
+        Assertions.assertEquals(aUser.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aUser.getCustomerId().value(), aOutput.getCustomerId().value());
+        Assertions.assertEquals(aUser.getName().firstName(), aOutput.getName().firstName());
+        Assertions.assertEquals(aUser.getName().lastName(), aOutput.getName().lastName());
+        Assertions.assertEquals(aUser.getEmail().value(), aOutput.getEmail().value());
+        Assertions.assertEquals(aUser.getPassword().value(), aOutput.getPassword().value());
+        Assertions.assertEquals(aUser.isDeleted(), aOutput.isDeleted());
+        Assertions.assertEquals(aUser.isEmailVerified(), aOutput.isEmailVerified());
+        Assertions.assertEquals(aUser.getCreatedAt(), aOutput.getCreatedAt());
+        Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
+        Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
     }
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.authorization.persistence.*;
+import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
+import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntityRepository;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson2.CoreJackson2Module;
@@ -24,24 +26,24 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationService {
 
     private final AuthorizationJpaEntityRepository authorizationRepository;
     private final RegisteredClientRepository registeredClientRepository;
+    private final UserJpaEntityRepository userJpaEntityRepository;
     private final ObjectMapper mapper = new ObjectMapper();
 
     public AuthorizationServiceRepositoryImpl(
             final AuthorizationJpaEntityRepository authorizationRepository,
-            final RegisteredClientRepository registeredClientRepository
+            final RegisteredClientRepository registeredClientRepository,
+            final UserJpaEntityRepository userJpaEntityRepository
     ) {
         this.authorizationRepository = Objects.requireNonNull(authorizationRepository);
         this.registeredClientRepository = Objects.requireNonNull(registeredClientRepository);
+        this.userJpaEntityRepository = Objects.requireNonNull(userJpaEntityRepository);
         ClassLoader classLoader = AuthorizationServiceRepositoryImpl.class.getClassLoader();
         List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
         this.mapper.registerModules(securityModules);
@@ -197,6 +199,7 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
         final OAuth2Authorization.Token<OAuth2RefreshToken> aRefreshToken = authorization.getToken(OAuth2RefreshToken.class);
         if (aRefreshToken != null) {
             if (entity.getRefreshToken() != null) {
+                refreshValidUntilMfa(entity, aRefreshToken);
                 entity.getRefreshToken().setValue(aRefreshToken.getToken().getTokenValue());
                 entity.getRefreshToken().setIssuedAt(aRefreshToken.getToken().getIssuedAt());
                 entity.getRefreshToken().setExpiresAt(aRefreshToken.getToken().getExpiresAt());
@@ -276,6 +279,7 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
     }
 
     private RefreshTokenEntity createRefreshTokenEntity(AuthorizationEntity entity, OAuth2Authorization.Token<OAuth2RefreshToken> aRefreshToken) {
+        refreshValidUntilMfa(entity, aRefreshToken);
         return new RefreshTokenEntity(
                 IdentifierUtils.generateNewId(),
                 entity,
@@ -284,6 +288,18 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
                 aRefreshToken.getToken().getExpiresAt(),
                 writeString(aRefreshToken.getMetadata())
         );
+    }
+
+    private void refreshValidUntilMfa(AuthorizationEntity entity, OAuth2Authorization.Token<OAuth2RefreshToken> aRefreshToken) {
+        final var aUser = this.userJpaEntityRepository
+                .findById(UUID.fromString(entity.getPrincipalName())).get()
+                .toDomain();
+
+        if (aUser.getMfa().isMfaEnabled()) {
+            aUser.getMfa().updateValidUntil(aRefreshToken.getToken().getExpiresAt());
+
+            this.userJpaEntityRepository.save(UserJpaEntity.toEntity(aUser));
+        }
     }
 
     private OidcIdTokenEntity createOidcTokenEntity(AuthorizationEntity entity, OAuth2Authorization.Token<OidcIdToken> aOidcToken) {
