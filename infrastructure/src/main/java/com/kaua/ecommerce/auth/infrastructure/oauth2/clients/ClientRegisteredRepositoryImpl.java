@@ -52,7 +52,7 @@ public class ClientRegisteredRepositoryImpl implements RegisteredClientRepositor
     @Override
     public RegisteredClient findById(final String id) {
         final var aRefKey = OAUTH2_CLIENTS_REF_KEY_PREFIX
-                .concat(OAUTH2_CLIENTS_REF_KEY_CLIENT_ID)
+                .concat(OAUTH2_CLIENTS_REF_KEY_ID)
                 .concat(id);
         return this.findClientByRefKey(aRefKey, () -> this.clientJpaEntityRepository.findById(id));
     }
