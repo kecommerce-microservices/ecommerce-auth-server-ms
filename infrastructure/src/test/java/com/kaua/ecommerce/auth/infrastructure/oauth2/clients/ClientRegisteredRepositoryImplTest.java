@@ -1,5 +1,6 @@
 package com.kaua.ecommerce.auth.infrastructure.oauth2.clients;
 
+import com.kaua.ecommerce.auth.infrastructure.AbstractCacheTest;
 import com.kaua.ecommerce.auth.infrastructure.DatabaseRepositoryTest;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.clients.persistence.ClientJpaEntityRepository;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.password.CustomPasswordGrantType;
@@ -16,7 +17,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import java.time.Duration;
 
 @DatabaseRepositoryTest
-class ClientRegisteredRepositoryImplTest {
+class ClientRegisteredRepositoryImplTest extends AbstractCacheTest {
 
     @Autowired
     private ClientJpaEntityRepository clientJpaEntityRepository;
@@ -74,7 +75,98 @@ class ClientRegisteredRepositoryImplTest {
 
     @Test
     void givenAValidId_whenCallFindById_thenReturnRegisteredClient() {
-        final var aClient = RegisteredClient.withId(IdentifierUtils.generateNewId())
+        final var aClient = createRegisteredClient();
+
+        Assertions.assertDoesNotThrow(() -> this.clientRegisteredRepositoryImpl.save(aClient));
+
+        final var clientEntity = this.clientRegisteredRepositoryImpl.findById(aClient.getId());
+
+        Assertions.assertNotNull(clientEntity);
+        Assertions.assertEquals(aClient.getClientId(), clientEntity.getClientId());
+        Assertions.assertEquals(aClient.getClientSecret(), clientEntity.getClientSecret());
+        Assertions.assertEquals(aClient.getAuthorizationGrantTypes().size(), clientEntity.getAuthorizationGrantTypes().size());
+        Assertions.assertEquals(aClient.getClientAuthenticationMethods().size(), clientEntity.getClientAuthenticationMethods().size());
+        Assertions.assertEquals(aClient.getRedirectUris().size(), clientEntity.getRedirectUris().size());
+        Assertions.assertEquals(aClient.getScopes().size(), clientEntity.getScopes().size());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireAuthorizationConsent(), clientEntity.getClientSettings().isRequireAuthorizationConsent());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireProofKey(), clientEntity.getClientSettings().isRequireProofKey());
+        Assertions.assertEquals(aClient.getTokenSettings().getAccessTokenTimeToLive(), clientEntity.getTokenSettings().getAccessTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().getRefreshTokenTimeToLive(), clientEntity.getTokenSettings().getRefreshTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().isReuseRefreshTokens(), clientEntity.getTokenSettings().isReuseRefreshTokens());
+    }
+
+    @Test
+    void givenAValidClientId_whenCallFindByClientId_thenReturnRegisteredClient() {
+        final var aClient = createRegisteredClient();
+
+        Assertions.assertDoesNotThrow(() -> this.clientRegisteredRepositoryImpl.save(aClient));
+
+        final var clientEntity = this.clientRegisteredRepositoryImpl.findByClientId(aClient.getClientId());
+
+        Assertions.assertNotNull(clientEntity);
+        Assertions.assertEquals(aClient.getClientId(), clientEntity.getClientId());
+        Assertions.assertEquals(aClient.getClientSecret(), clientEntity.getClientSecret());
+        Assertions.assertEquals(aClient.getAuthorizationGrantTypes().size(), clientEntity.getAuthorizationGrantTypes().size());
+        Assertions.assertEquals(aClient.getClientAuthenticationMethods().size(), clientEntity.getClientAuthenticationMethods().size());
+        Assertions.assertEquals(aClient.getRedirectUris().size(), clientEntity.getRedirectUris().size());
+        Assertions.assertEquals(aClient.getScopes().size(), clientEntity.getScopes().size());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireAuthorizationConsent(), clientEntity.getClientSettings().isRequireAuthorizationConsent());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireProofKey(), clientEntity.getClientSettings().isRequireProofKey());
+        Assertions.assertEquals(aClient.getTokenSettings().getAccessTokenTimeToLive(), clientEntity.getTokenSettings().getAccessTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().getRefreshTokenTimeToLive(), clientEntity.getTokenSettings().getRefreshTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().isReuseRefreshTokens(), clientEntity.getTokenSettings().isReuseRefreshTokens());
+    }
+
+    @Test
+    void givenAValidIdButExistsInCache_whenCallFindById_thenReturnRegisteredClient() {
+        final var aClient = createRegisteredClient();
+
+        Assertions.assertDoesNotThrow(() -> this.clientRegisteredRepositoryImpl.save(aClient));
+
+        this.clientRegisteredRepositoryImpl.findById(aClient.getId());
+
+        final var clientEntity = this.clientRegisteredRepositoryImpl.findById(aClient.getId());
+
+        Assertions.assertNotNull(clientEntity);
+        Assertions.assertEquals(aClient.getClientId(), clientEntity.getClientId());
+        Assertions.assertEquals(aClient.getClientSecret(), clientEntity.getClientSecret());
+        Assertions.assertEquals(aClient.getAuthorizationGrantTypes().size(), clientEntity.getAuthorizationGrantTypes().size());
+        Assertions.assertEquals(aClient.getClientAuthenticationMethods().size(), clientEntity.getClientAuthenticationMethods().size());
+        Assertions.assertEquals(aClient.getRedirectUris().size(), clientEntity.getRedirectUris().size());
+        Assertions.assertEquals(aClient.getScopes().size(), clientEntity.getScopes().size());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireAuthorizationConsent(), clientEntity.getClientSettings().isRequireAuthorizationConsent());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireProofKey(), clientEntity.getClientSettings().isRequireProofKey());
+        Assertions.assertEquals(aClient.getTokenSettings().getAccessTokenTimeToLive(), clientEntity.getTokenSettings().getAccessTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().getRefreshTokenTimeToLive(), clientEntity.getTokenSettings().getRefreshTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().isReuseRefreshTokens(), clientEntity.getTokenSettings().isReuseRefreshTokens());
+    }
+
+    @Test
+    void givenAValidClientIdButExistsInCache_whenCallFindByClientId_thenReturnRegisteredClient() {
+        final var aClient = createRegisteredClient();
+
+        Assertions.assertDoesNotThrow(() -> this.clientRegisteredRepositoryImpl.save(aClient));
+
+        this.clientRegisteredRepositoryImpl.findByClientId(aClient.getClientId());
+
+        final var clientEntity = this.clientRegisteredRepositoryImpl.findByClientId(aClient.getClientId());
+
+        Assertions.assertNotNull(clientEntity);
+        Assertions.assertEquals(aClient.getClientId(), clientEntity.getClientId());
+        Assertions.assertEquals(aClient.getClientSecret(), clientEntity.getClientSecret());
+        Assertions.assertEquals(aClient.getAuthorizationGrantTypes().size(), clientEntity.getAuthorizationGrantTypes().size());
+        Assertions.assertEquals(aClient.getClientAuthenticationMethods().size(), clientEntity.getClientAuthenticationMethods().size());
+        Assertions.assertEquals(aClient.getRedirectUris().size(), clientEntity.getRedirectUris().size());
+        Assertions.assertEquals(aClient.getScopes().size(), clientEntity.getScopes().size());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireAuthorizationConsent(), clientEntity.getClientSettings().isRequireAuthorizationConsent());
+        Assertions.assertEquals(aClient.getClientSettings().isRequireProofKey(), clientEntity.getClientSettings().isRequireProofKey());
+        Assertions.assertEquals(aClient.getTokenSettings().getAccessTokenTimeToLive(), clientEntity.getTokenSettings().getAccessTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().getRefreshTokenTimeToLive(), clientEntity.getTokenSettings().getRefreshTokenTimeToLive());
+        Assertions.assertEquals(aClient.getTokenSettings().isReuseRefreshTokens(), clientEntity.getTokenSettings().isReuseRefreshTokens());
+    }
+
+    private RegisteredClient createRegisteredClient() {
+        return RegisteredClient.withId(IdentifierUtils.generateNewId())
                 .clientId("client-id")
                 .clientSecret("client-secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
@@ -97,22 +189,5 @@ class ClientRegisteredRepositoryImplTest {
                         .reuseRefreshTokens(false)
                         .build())
                 .build();
-
-        Assertions.assertDoesNotThrow(() -> this.clientRegisteredRepositoryImpl.save(aClient));
-
-        final var clientEntity = this.clientRegisteredRepositoryImpl.findById(aClient.getId());
-
-        Assertions.assertNotNull(clientEntity);
-        Assertions.assertEquals(aClient.getClientId(), clientEntity.getClientId());
-        Assertions.assertEquals(aClient.getClientSecret(), clientEntity.getClientSecret());
-        Assertions.assertEquals(aClient.getAuthorizationGrantTypes().size(), clientEntity.getAuthorizationGrantTypes().size());
-        Assertions.assertEquals(aClient.getClientAuthenticationMethods().size(), clientEntity.getClientAuthenticationMethods().size());
-        Assertions.assertEquals(aClient.getRedirectUris().size(), clientEntity.getRedirectUris().size());
-        Assertions.assertEquals(aClient.getScopes().size(), clientEntity.getScopes().size());
-        Assertions.assertEquals(aClient.getClientSettings().isRequireAuthorizationConsent(), clientEntity.getClientSettings().isRequireAuthorizationConsent());
-        Assertions.assertEquals(aClient.getClientSettings().isRequireProofKey(), clientEntity.getClientSettings().isRequireProofKey());
-        Assertions.assertEquals(aClient.getTokenSettings().getAccessTokenTimeToLive(), clientEntity.getTokenSettings().getAccessTokenTimeToLive());
-        Assertions.assertEquals(aClient.getTokenSettings().getRefreshTokenTimeToLive(), clientEntity.getTokenSettings().getRefreshTokenTimeToLive());
-        Assertions.assertEquals(aClient.getTokenSettings().isReuseRefreshTokens(), clientEntity.getTokenSettings().isReuseRefreshTokens());
     }
 }
