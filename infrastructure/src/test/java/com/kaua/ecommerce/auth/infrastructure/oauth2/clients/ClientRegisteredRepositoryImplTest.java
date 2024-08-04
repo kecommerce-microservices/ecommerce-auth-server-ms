@@ -8,6 +8,7 @@ import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -18,6 +19,9 @@ import java.time.Duration;
 
 @DatabaseRepositoryTest
 class ClientRegisteredRepositoryImplTest extends AbstractCacheTest {
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @Autowired
     private ClientJpaEntityRepository clientJpaEntityRepository;
@@ -139,6 +143,21 @@ class ClientRegisteredRepositoryImplTest extends AbstractCacheTest {
         Assertions.assertEquals(aClient.getTokenSettings().getAccessTokenTimeToLive(), clientEntity.getTokenSettings().getAccessTokenTimeToLive());
         Assertions.assertEquals(aClient.getTokenSettings().getRefreshTokenTimeToLive(), clientEntity.getTokenSettings().getRefreshTokenTimeToLive());
         Assertions.assertEquals(aClient.getTokenSettings().isReuseRefreshTokens(), clientEntity.getTokenSettings().isReuseRefreshTokens());
+    }
+
+    @Test
+    void givenAValidIdButReturnNullJson_whenCallFindById_thenReturnRegisteredClient() {
+        final var aClient = createRegisteredClient();
+
+        Assertions.assertDoesNotThrow(() -> this.clientRegisteredRepositoryImpl.save(aClient));
+
+        this.clientRegisteredRepositoryImpl.findById(aClient.getId());
+
+        this.redisTemplate.delete("oauth2:clients:obj:" + aClient.getId());
+
+        final var clientEntity = this.clientRegisteredRepositoryImpl.findById(aClient.getId());
+
+        Assertions.assertNotNull(clientEntity);
     }
 
     @Test
