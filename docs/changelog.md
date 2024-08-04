@@ -7,6 +7,10 @@
 - [X] Adicionado as tabelas de oauth2 clients e authorization
 - [X] Adicionado a criação via postman do client
 - [X] Adicionado a execução do client
+- [X] Adicionado o login usando email e senha do usuário
+- [X] Adicionado o cache dos oauth2 clients
+- [X] Adicionado o MFA para o login
+- [X] Adicionado a role global para os tokens de microservices
 
 # 0.1.0
 - [X] Adicionado o arquivo de changelog
