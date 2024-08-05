@@ -7,6 +7,7 @@ import com.kaua.ecommerce.auth.infrastructure.rest.UserRestApi;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.ConfirmUserMfaDeviceRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserMfaRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.req.UpdateUserRequest;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public class UserRestController implements UserRestApi {
     @Override
     public ResponseEntity<UpdateUserOutput> updateUser(
             final UserDetailsImpl principal,
-            final CreateUserRequest request
+            final UpdateUserRequest request
     ) {
         log.debug("Received request to update user: {}", request);
 

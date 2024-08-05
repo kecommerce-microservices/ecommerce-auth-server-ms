@@ -4,6 +4,7 @@ import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.ConfirmUserMfaDeviceRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserMfaRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.req.UpdateUserRequest;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,7 +47,7 @@ public interface UserRestApi {
     })
     ResponseEntity<UpdateUserOutput> updateUser(
             @AuthenticationPrincipal final UserDetailsImpl principal,
-            @RequestBody CreateUserRequest request
+            @RequestBody UpdateUserRequest request
     );
 
     @PostMapping(
