@@ -196,4 +196,19 @@ class UserTest extends UnitTest {
         Assertions.assertEquals(aEmail, aUserChanged.getEmail());
         Assertions.assertTrue(aUserChanged.getUpdatedAt().isAfter(aUpdatedAt));
     }
+
+    @Test
+    void givenAValidUser_whenCallMarkAsDeleted_thenShouldMarkAsDeleted() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aDeletedAt = aUser.getDeletedAt();
+
+        final var aUserDeleted = aUser.markAsDeleted();
+
+        Assertions.assertNotNull(aUserDeleted);
+        Assertions.assertTrue(aUserDeleted.isDeleted());
+        Assertions.assertTrue(aUserDeleted.getDeletedAt().isPresent());
+        Assertions.assertTrue(aUserDeleted.getDeletedAt().get().isAfter(aDeletedAt.orElse(InstantUtils.now().minusSeconds(1))));
+    }
 }
