@@ -6,6 +6,7 @@ import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.ConfirmUserMfaDeviceUseCase;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.ConfirmUserMfaDeviceInput;
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.ConfirmUserMfaDeviceOutput;
+import com.kaua.ecommerce.auth.domain.exceptions.UserIsDeletedException;
 import com.kaua.ecommerce.auth.domain.users.User;
 import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
 import com.kaua.ecommerce.lib.domain.exceptions.NotFoundException;
@@ -34,6 +35,10 @@ public class DefaultConfirmUserMfaDeviceUseCase extends ConfirmUserMfaDeviceUseC
 
         final var aUser = this.userRepository.findById(input.userId())
                 .orElseThrow(NotFoundException.with(User.class, input.userId().toString()));
+
+        if (aUser.isDeleted()) {
+            throw new UserIsDeletedException(aUser.getId().value().toString());
+        }
 
         final var aUserMfa = aUser.getMfa();
 

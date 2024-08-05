@@ -5,6 +5,7 @@ import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.DisableUserMfaUseCase;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.DisableUserMfaInput;
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.DisableUserMfaOutput;
+import com.kaua.ecommerce.auth.domain.exceptions.UserIsDeletedException;
 import com.kaua.ecommerce.auth.domain.users.User;
 import com.kaua.ecommerce.lib.domain.exceptions.NotFoundException;
 
@@ -24,6 +25,10 @@ public class DefaultDisableUserMfaUseCase extends DisableUserMfaUseCase {
 
         final var aUser = this.userRepository.findById(input.userId())
                 .orElseThrow(NotFoundException.with(User.class, input.userId().toString()));
+
+        if (aUser.isDeleted()) {
+            throw new UserIsDeletedException(aUser.getId().value().toString());
+        }
 
         final var aUserMfa = aUser.getMfa();
         final var aUserMfaDisabled = aUserMfa.disableMfa();
