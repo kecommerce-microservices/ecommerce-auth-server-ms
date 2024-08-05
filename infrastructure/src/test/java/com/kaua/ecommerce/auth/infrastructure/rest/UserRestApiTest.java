@@ -1,16 +1,11 @@
 package com.kaua.ecommerce.auth.infrastructure.rest;
 
-import com.kaua.ecommerce.auth.application.usecases.users.ConfirmUserMfaDeviceUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.CreateUserMfaUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.CreateUserUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.DisableUserMfaUseCase;
+import com.kaua.ecommerce.auth.application.usecases.users.*;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.ConfirmUserMfaDeviceInput;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserInput;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserMfaInput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.ConfirmUserMfaDeviceOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserMfaOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.DisableUserMfaOutput;
+import com.kaua.ecommerce.auth.application.usecases.users.inputs.UpdateUserInput;
+import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
 import com.kaua.ecommerce.auth.infrastructure.ApiTest;
 import com.kaua.ecommerce.auth.infrastructure.ControllerTest;
 import com.kaua.ecommerce.auth.infrastructure.rest.controllers.UserRestController;
@@ -50,6 +45,9 @@ class UserRestApiTest {
     @MockBean
     private DisableUserMfaUseCase disableUserMfaUseCase;
 
+    @MockBean
+    private UpdateUserUseCase updateUserUseCase;
+
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
 
@@ -58,6 +56,9 @@ class UserRestApiTest {
 
     @Captor
     private ArgumentCaptor<ConfirmUserMfaDeviceInput> confirmUserMfaDeviceInputCaptor;
+
+    @Captor
+    private ArgumentCaptor<UpdateUserInput> updateUserInputCaptor;
 
     @Test
     void givenAValidRequest_whenCallCreateUser_thenReturnUserId() throws Exception {
@@ -231,5 +232,49 @@ class UserRestApiTest {
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
+    }
+
+    @Test
+    void givenAValidRequest_whenCallUpdateUser_thenReturnUserId() throws Exception {
+        final var aFirstName = "Johns";
+        final var aLastName = "Does";
+        final var aEmail = "test.tss@testes.com";
+
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.when(updateUserUseCase.execute(any()))
+                .thenAnswer(call -> new UpdateUserOutput(aExpectedUserId));
+
+        var json = """
+                {
+                    "first_name": "%s",
+                    "last_name": "%s",
+                    "email": "%s"
+                }
+                """.formatted(aFirstName, aLastName, aEmail);
+
+        final var aRequest = MockMvcRequestBuilders.patch("/v1/users/update")
+                .with(ApiTest.admin(aExpectedUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(json);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
+
+        Mockito.verify(updateUserUseCase, Mockito.times(1)).execute(updateUserInputCaptor.capture());
+
+        final var aUpdateUserInput = updateUserInputCaptor.getValue();
+
+        Assertions.assertEquals(aExpectedUserId, aUpdateUserInput.id().toString());
+        Assertions.assertEquals(aFirstName, aUpdateUserInput.firstName());
+        Assertions.assertEquals(aLastName, aUpdateUserInput.lastName());
+        Assertions.assertEquals(aEmail, aUpdateUserInput.email());
     }
 }

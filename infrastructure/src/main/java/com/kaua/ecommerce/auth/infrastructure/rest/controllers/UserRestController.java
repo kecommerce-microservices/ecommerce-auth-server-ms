@@ -1,21 +1,13 @@
 package com.kaua.ecommerce.auth.infrastructure.rest.controllers;
 
-import com.kaua.ecommerce.auth.application.usecases.users.ConfirmUserMfaDeviceUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.CreateUserMfaUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.CreateUserUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.DisableUserMfaUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.inputs.ConfirmUserMfaDeviceInput;
-import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserInput;
-import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserMfaInput;
-import com.kaua.ecommerce.auth.application.usecases.users.inputs.DisableUserMfaInput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.ConfirmUserMfaDeviceOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserMfaOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.DisableUserMfaOutput;
+import com.kaua.ecommerce.auth.application.usecases.users.*;
+import com.kaua.ecommerce.auth.application.usecases.users.inputs.*;
+import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
 import com.kaua.ecommerce.auth.infrastructure.rest.UserRestApi;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.ConfirmUserMfaDeviceRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserMfaRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.req.UpdateUserRequest;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.slf4j.Logger;
@@ -37,17 +29,20 @@ public class UserRestController implements UserRestApi {
     private final CreateUserMfaUseCase createUserMfaUseCase;
     private final ConfirmUserMfaDeviceUseCase confirmUserMfaDeviceUseCase;
     private final DisableUserMfaUseCase disableUserMfaUseCase;
+    private final UpdateUserUseCase updateUserUseCase;
 
     public UserRestController(
             final CreateUserUseCase createUserUseCase,
             final CreateUserMfaUseCase createUserMfaUseCase,
             final ConfirmUserMfaDeviceUseCase confirmUserMfaDeviceUseCase,
-            final DisableUserMfaUseCase disableUserMfaUseCase
+            final DisableUserMfaUseCase disableUserMfaUseCase,
+            final UpdateUserUseCase updateUserUseCase
     ) {
         this.createUserUseCase = Objects.requireNonNull(createUserUseCase);
         this.createUserMfaUseCase = Objects.requireNonNull(createUserMfaUseCase);
         this.confirmUserMfaDeviceUseCase = Objects.requireNonNull(confirmUserMfaDeviceUseCase);
         this.disableUserMfaUseCase = Objects.requireNonNull(disableUserMfaUseCase);
+        this.updateUserUseCase = Objects.requireNonNull(updateUserUseCase);
     }
 
     @Override
@@ -67,6 +62,27 @@ public class UserRestController implements UserRestApi {
         log.info("User created successfully: {}", aOutput);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .location(URI.create("/v1/users/" + aOutput.userId()))
+                .body(aOutput);
+    }
+
+    @Override
+    public ResponseEntity<UpdateUserOutput> updateUser(
+            final UserDetailsImpl principal,
+            final UpdateUserRequest request
+    ) {
+        log.debug("Received request to update user: {}", request);
+
+        final var aInput = new UpdateUserInput(
+                UUID.fromString(principal.getUsername()),
+                request.firstName(),
+                request.lastName(),
+                request.email()
+        );
+
+        final var aOutput = this.updateUserUseCase.execute(aInput);
+
+        log.info("User updated successfully: {}", aOutput);
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(aOutput);
     }
 

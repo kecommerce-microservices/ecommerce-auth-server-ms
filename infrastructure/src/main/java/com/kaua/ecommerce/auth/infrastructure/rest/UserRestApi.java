@@ -1,12 +1,10 @@
 package com.kaua.ecommerce.auth.infrastructure.rest;
 
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.ConfirmUserMfaDeviceOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserMfaOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.CreateUserOutput;
-import com.kaua.ecommerce.auth.application.usecases.users.outputs.DisableUserMfaOutput;
+import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.ConfirmUserMfaDeviceRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserMfaRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.req.UpdateUserRequest;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,6 +31,24 @@ public interface UserRestApi {
             @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
     })
     ResponseEntity<CreateUserOutput> createUser(@RequestBody CreateUserRequest request);
+
+    @PatchMapping(
+            value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Update user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "422", description = "A validation error was observed"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    ResponseEntity<UpdateUserOutput> updateUser(
+            @AuthenticationPrincipal final UserDetailsImpl principal,
+            @RequestBody UpdateUserRequest request
+    );
 
     @PostMapping(
             value = "/mfa",

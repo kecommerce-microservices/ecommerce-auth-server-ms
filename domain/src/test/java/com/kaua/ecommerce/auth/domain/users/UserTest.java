@@ -1,5 +1,6 @@
 package com.kaua.ecommerce.auth.domain.users;
 
+import com.kaua.ecommerce.auth.domain.Fixture;
 import com.kaua.ecommerce.auth.domain.UnitTest;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfa;
@@ -162,5 +163,37 @@ class UserTest extends UnitTest {
 
         Assertions.assertEquals(aProperty, aException.getErrors().get(0).property());
         Assertions.assertEquals(aMessage, aException.getErrors().get(0).message());
+    }
+
+    @Test
+    void givenAValidName_whenCallChangeName_thenShouldChangeName() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        final var aName = new UserName("Fulano", "Doe");
+
+        final var aUserChanged = aUser.changeName(aName);
+
+        Assertions.assertNotNull(aUserChanged);
+        Assertions.assertEquals(aName, aUserChanged.getName());
+        Assertions.assertTrue(aUserChanged.getUpdatedAt().isAfter(aUpdatedAt));
+    }
+
+    @Test
+    void givenAValidEmail_whenCallChangeEmail_thenShouldChangeEmail() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        final var aEmail = new UserEmail("fulaninho@teste.com");
+
+        final var aUserChanged = aUser.changeEmail(aEmail);
+
+        Assertions.assertNotNull(aUserChanged);
+        Assertions.assertEquals(aEmail, aUserChanged.getEmail());
+        Assertions.assertTrue(aUserChanged.getUpdatedAt().isAfter(aUpdatedAt));
     }
 }

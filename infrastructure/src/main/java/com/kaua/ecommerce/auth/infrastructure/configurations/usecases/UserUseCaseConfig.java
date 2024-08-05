@@ -4,14 +4,8 @@ import com.kaua.ecommerce.auth.application.gateways.CryptographyGateway;
 import com.kaua.ecommerce.auth.application.gateways.MfaGateway;
 import com.kaua.ecommerce.auth.application.repositories.RoleRepository;
 import com.kaua.ecommerce.auth.application.repositories.UserRepository;
-import com.kaua.ecommerce.auth.application.usecases.users.ConfirmUserMfaDeviceUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.CreateUserMfaUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.CreateUserUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.DisableUserMfaUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.impl.DefaultConfirmUserMfaDeviceUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.impl.DefaultCreateUserMfaUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.impl.DefaultCreateUserUseCase;
-import com.kaua.ecommerce.auth.application.usecases.users.impl.DefaultDisableUserMfaUseCase;
+import com.kaua.ecommerce.auth.application.usecases.users.*;
+import com.kaua.ecommerce.auth.application.usecases.users.impl.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -55,5 +49,10 @@ public class UserUseCaseConfig {
     @Bean
     public DisableUserMfaUseCase disableUserMfaUseCase() {
         return new DefaultDisableUserMfaUseCase(userRepository);
+    }
+
+    @Bean
+    public UpdateUserUseCase updateUserUseCase() {
+        return new DefaultUpdateUserUseCase(userRepository);
     }
 }
