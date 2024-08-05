@@ -28,7 +28,7 @@ public class DefaultUpdateUserUseCase extends UpdateUserUseCase {
 
         final var aExistsEmail = input.getEmail().map(userRepository::existsByEmail).orElse(false);
 
-        if (aExistsEmail) {
+        if (Boolean.TRUE.equals(aExistsEmail)) {
             throw DomainException.with("Email already exists");
         }
 
