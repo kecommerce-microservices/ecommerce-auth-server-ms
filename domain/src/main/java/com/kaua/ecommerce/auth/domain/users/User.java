@@ -86,6 +86,18 @@ public class User extends AggregateRoot<UserId> {
         );
     }
 
+    public User changeName(final UserName aName) {
+        this.setName(aName);
+        this.setUpdatedAt(InstantUtils.now());
+        return this;
+    }
+
+    public User changeEmail(final UserEmail aEmail) {
+        this.setEmail(aEmail);
+        this.setUpdatedAt(InstantUtils.now());
+        return this;
+    }
+
     public static User with(
             final UserId aUserId,
             final long aVersion,
