@@ -11,6 +11,7 @@
 - [X] Adicionado o cache dos oauth2 clients
 - [X] Adicionado o MFA para o login
 - [X] Adicionado a role global para os tokens de microservices
+- [X] Adicionado a troca de email e update do user
 
 # 0.1.0
 - [X] Adicionado o arquivo de changelog
