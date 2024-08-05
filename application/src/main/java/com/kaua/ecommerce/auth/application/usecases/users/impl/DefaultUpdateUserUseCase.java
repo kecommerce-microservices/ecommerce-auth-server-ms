@@ -5,6 +5,7 @@ import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.UpdateUserUseCase;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.UpdateUserInput;
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.UpdateUserOutput;
+import com.kaua.ecommerce.auth.domain.exceptions.UserIsDeletedException;
 import com.kaua.ecommerce.auth.domain.users.User;
 import com.kaua.ecommerce.auth.domain.users.UserEmail;
 import com.kaua.ecommerce.auth.domain.users.UserName;
@@ -34,6 +35,10 @@ public class DefaultUpdateUserUseCase extends UpdateUserUseCase {
 
         final var aUser = this.userRepository.findById(input.id())
                 .orElseThrow(NotFoundException.with(User.class, input.id().toString()));
+
+        if (aUser.isDeleted()) {
+            throw new UserIsDeletedException(aUser.getId().value().toString());
+        }
 
         final var aFirstName = input.firstName();
         final var aLastName = input.lastName();

@@ -54,7 +54,7 @@ public class MfaAuthenticationFilter extends OncePerRequestFilter {
         final var aInitial = SecurityContextHolder.getContext().getAuthentication();
 
         if (aInitial == null) {
-            log.debug("MFA Authentication Filter - Not authenticated");
+            log.debug("MFA Authentication Filter - Authentication is null");
             filterChain.doFilter(request, response);
             return;
         }

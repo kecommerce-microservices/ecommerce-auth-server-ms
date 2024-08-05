@@ -5,6 +5,7 @@ import com.kaua.ecommerce.auth.application.exceptions.UseCaseInputCannotBeNullEx
 import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.UpdateUserInput;
 import com.kaua.ecommerce.auth.domain.Fixture;
+import com.kaua.ecommerce.auth.domain.exceptions.UserIsDeletedException;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
@@ -189,5 +190,32 @@ class UpdateUserUseCaseTest extends UseCaseTest {
                         && Objects.equals(cmd.getName().lastName(), aNewLastName)
                         && Objects.equals(cmd.getEmail().value(), aUser.getEmail().value()))
         );
+    }
+
+    @Test
+    void givenAnDeletedUser_whenCallUpdateUserUseCase_thenShouldThrowUserIsDeletedException() {
+        final var aRoleId = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRoleId);
+        aUser.markAsDeleted();
+
+        final var aUserId = aUser.getId().value();
+        final var aNewFirstName = "New First Name";
+        final var aNewLastName = "New Last Name";
+        final var aNewEmail = "testes.tess@gmail.com";
+
+        final var aInput = new UpdateUserInput(aUserId, aNewFirstName, aNewLastName, aNewEmail);
+
+        final var expectedErrorMessage = "User with id %s is deleted".formatted(aUserId);
+
+        Mockito.when(userRepository.findById(aUserId)).thenReturn(Optional.of(aUser));
+
+        final var aException = Assertions.assertThrows(UserIsDeletedException.class,
+                () -> this.updateUserUseCase.execute(aInput));
+
+        Assertions.assertEquals(expectedErrorMessage, aException.getMessage());
+
+        Mockito.verify(userRepository, Mockito.times(1)).existsByEmail(Mockito.any());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(aUserId);
+        Mockito.verify(userRepository, Mockito.never()).update(Mockito.any());
     }
 }

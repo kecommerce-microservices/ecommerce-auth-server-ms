@@ -48,6 +48,9 @@ class UserRestApiTest {
     @MockBean
     private UpdateUserUseCase updateUserUseCase;
 
+    @MockBean
+    private MarkAsDeleteUserUseCase markAsDeleteUserUseCase;
+
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
 
@@ -253,7 +256,7 @@ class UserRestApiTest {
                 }
                 """.formatted(aFirstName, aLastName, aEmail);
 
-        final var aRequest = MockMvcRequestBuilders.patch("/v1/users/update")
+        final var aRequest = MockMvcRequestBuilders.patch("/v1/users")
                 .with(ApiTest.admin(aExpectedUserId))
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -276,5 +279,27 @@ class UserRestApiTest {
         Assertions.assertEquals(aFirstName, aUpdateUserInput.firstName());
         Assertions.assertEquals(aLastName, aUpdateUserInput.lastName());
         Assertions.assertEquals(aEmail, aUpdateUserInput.email());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallMarkAsDeleteUser_thenShouldBeOk() throws Exception {
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.doNothing().when(markAsDeleteUserUseCase).execute(any());
+
+        final var aRequest = MockMvcRequestBuilders.delete("/v1/users")
+                .with(ApiTest.admin(aExpectedUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk());
+
+        Mockito.verify(markAsDeleteUserUseCase, Mockito.times(1))
+                .execute(Mockito.any());
     }
 }

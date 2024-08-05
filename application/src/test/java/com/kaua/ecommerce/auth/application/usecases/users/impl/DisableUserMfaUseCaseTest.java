@@ -5,6 +5,7 @@ import com.kaua.ecommerce.auth.application.exceptions.UseCaseInputCannotBeNullEx
 import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.DisableUserMfaInput;
 import com.kaua.ecommerce.auth.domain.Fixture;
+import com.kaua.ecommerce.auth.domain.exceptions.UserIsDeletedException;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.lib.domain.exceptions.NotFoundException;
@@ -78,6 +79,28 @@ class DisableUserMfaUseCaseTest extends UseCaseTest {
         Mockito.when(userRepository.findById(aUserId)).thenReturn(Optional.empty());
 
         final var aException = Assertions.assertThrows(NotFoundException.class,
+                () -> this.disableUserMfaUseCase.execute(aInput));
+
+        Assertions.assertEquals(expectedErrorMessage, aException.getMessage());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findById(aUserId);
+        Mockito.verify(userRepository, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void givenAnDeletedUser_whenCallDisableUserMfaUseCase_thenShouldThrowUserIsDeletedException() {
+        final var aUser = Fixture.Users.randomUser(new RoleId(IdentifierUtils.generateNewUUID()));
+        aUser.markAsDeleted();
+
+        final var aUserId = aUser.getId().value();
+
+        final var expectedErrorMessage = "User with id %s is deleted".formatted(aUserId);
+
+        final var aInput = new DisableUserMfaInput(aUserId);
+
+        Mockito.when(userRepository.findById(aUserId)).thenReturn(Optional.of(aUser));
+
+        final var aException = Assertions.assertThrows(UserIsDeletedException.class,
                 () -> this.disableUserMfaUseCase.execute(aInput));
 
         Assertions.assertEquals(expectedErrorMessage, aException.getMessage());

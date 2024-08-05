@@ -1,16 +1,15 @@
 package com.kaua.ecommerce.auth.infrastructure.userdetails;
 
-import com.kaua.ecommerce.auth.domain.users.User;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntityRepository;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntityRepository;
-import com.kaua.ecommerce.lib.domain.exceptions.NotFoundException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -32,10 +31,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     // in this code have 2 calls to DB, one to get the user and another to get the roles
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final var aUser = this.userJpaEntityRepository.findByEmail(username)
-                .orElseThrow(NotFoundException.with(User.class, username));
+                .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
+
+        if (aUser.isDeleted()) {
+            throw new UsernameNotFoundException("User is deleted");
+        }
 
         return new UserDetailsImpl(
                 aUser.getId().toString(),

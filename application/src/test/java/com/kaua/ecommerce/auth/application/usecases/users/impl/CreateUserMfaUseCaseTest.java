@@ -6,6 +6,7 @@ import com.kaua.ecommerce.auth.application.gateways.MfaGateway;
 import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserMfaInput;
 import com.kaua.ecommerce.auth.domain.Fixture;
+import com.kaua.ecommerce.auth.domain.exceptions.UserIsDeletedException;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
@@ -150,5 +151,28 @@ class CreateUserMfaUseCaseTest extends UseCaseTest {
 
         Assertions.assertEquals("should not be null or empty", aException.getErrors().get(0).message());
         Assertions.assertEquals("deviceName", aException.getErrors().get(0).property());
+    }
+
+    @Test
+    void givenAnDeletedUser_whenCallCreateUserMfaUseCase_thenThrowUserIsDeletedException() {
+        final var aUser = Fixture.Users.randomUser(new RoleId(IdentifierUtils.generateNewUUID()));
+        aUser.markAsDeleted();
+
+        final var aUserId = aUser.getId().value();
+        final var aType = UserMfaType.TOTP;
+        final var aDeviceName = "My Device";
+
+        final var expectedErrorMessage = "User with id %s is deleted".formatted(aUserId);
+
+        final var aInput = new CreateUserMfaInput(aUserId, aType.name(), aDeviceName);
+
+        Mockito.when(userRepository.findById(aUserId)).thenReturn(Optional.of(aUser));
+
+        final var aException = Assertions.assertThrows(
+                UserIsDeletedException.class,
+                () -> this.createUserMfaUseCase.execute(aInput)
+        );
+
+        Assertions.assertEquals(expectedErrorMessage, aException.getMessage());
     }
 }

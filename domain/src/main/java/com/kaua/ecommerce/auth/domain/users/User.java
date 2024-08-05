@@ -98,6 +98,13 @@ public class User extends AggregateRoot<UserId> {
         return this;
     }
 
+    public User markAsDeleted() {
+        this.setDeleted(true);
+        this.setDeletedAt(InstantUtils.now());
+        this.setUpdatedAt(InstantUtils.now());
+        return this;
+    }
+
     public static User with(
             final UserId aUserId,
             final long aVersion,

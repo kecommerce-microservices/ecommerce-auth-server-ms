@@ -6,6 +6,7 @@ import com.kaua.ecommerce.auth.application.gateways.MfaGateway;
 import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.ConfirmUserMfaDeviceInput;
 import com.kaua.ecommerce.auth.domain.Fixture;
+import com.kaua.ecommerce.auth.domain.exceptions.UserIsDeletedException;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
@@ -196,5 +197,30 @@ class ConfirmUserMfaDeviceUseCaseTest extends UseCaseTest {
                 cmd.getMfa().getValidUntil().isPresent()
                         && cmd.getMfa().getValidUntil().get().isAfter(InstantUtils.now())
                         && cmd.getMfa().isDeviceVerified()));
+    }
+
+    @Test
+    void givenAnDeletedUser_whenCallConfirmUserMfaDeviceUseCase_thenShouldThrowUserIsDeletedException() {
+        final var aUser = Fixture.Users.randomUser(new RoleId(IdentifierUtils.generateNewUUID()));
+        aUser.markAsDeleted();
+
+        final var aUserId = aUser.getId().value();
+        final var aCode = "123";
+        final var aValidUntil = InstantUtils.now().plus(30, ChronoUnit.MINUTES);
+
+        final var expectedErrorMessage = "User with id %s is deleted".formatted(aUserId);
+
+        final var aInput = new ConfirmUserMfaDeviceInput(aUserId, aCode, aValidUntil);
+
+        Mockito.when(userRepository.findById(aUserId)).thenReturn(Optional.of(aUser));
+
+        final var aException = Assertions.assertThrows(UserIsDeletedException.class,
+                () -> this.confirmUserMfaDeviceUseCase.execute(aInput));
+
+        Assertions.assertEquals(expectedErrorMessage, aException.getMessage());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findById(aUserId);
+        Mockito.verify(mfaGateway, Mockito.never()).accepts(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(userRepository, Mockito.never()).update(Mockito.any());
     }
 }

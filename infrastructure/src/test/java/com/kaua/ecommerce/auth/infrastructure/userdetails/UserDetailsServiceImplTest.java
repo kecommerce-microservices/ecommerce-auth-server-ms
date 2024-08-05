@@ -6,10 +6,10 @@ import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntityRepository;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntityRepository;
-import com.kaua.ecommerce.lib.domain.exceptions.NotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @IntegrationTest
 class UserDetailsServiceImplTest {
@@ -59,10 +59,40 @@ class UserDetailsServiceImplTest {
 
         final var aUserEmail = Fixture.Users.email();
 
-        final var expectedMessage = "User with id " + aUserEmail + " was not found";
+        final var expectedMessage = "Email not found";
 
         final var aException = Assertions.assertThrows(
-                NotFoundException.class,
+                UsernameNotFoundException.class,
+                () -> aUserDetailsService.loadUserByUsername(aUserEmail)
+        );
+
+        Assertions.assertEquals(expectedMessage, aException.getMessage());
+    }
+
+    @Test
+    void givenADeletedUser_whenLoadUserByUsername_thenShouldThrowException() {
+        final var aRoleDefault = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aRoleDefault));
+
+        final var aUser = Fixture.Users.randomUser(aRoleDefault.getId());
+        final var aUserEmail = aUser.getEmail().value();
+
+        aUser.markAsDeleted();
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+        Assertions.assertEquals(1, this.roleJpaEntityRepository.count());
+
+        final var aUserDetailsService = new UserDetailsServiceImpl(
+                userJpaEntityRepository,
+                roleJpaEntityRepository
+        );
+
+        final var expectedMessage = "User is deleted";
+
+        final var aException = Assertions.assertThrows(
+                UsernameNotFoundException.class,
                 () -> aUserDetailsService.loadUserByUsername(aUserEmail)
         );
 

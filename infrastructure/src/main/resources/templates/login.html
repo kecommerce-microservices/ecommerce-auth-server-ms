@@ -10,12 +10,12 @@
         <h1>Spring Auth Server</h1>
         <h2>Login</h2>
         <div class="error" th:if="${param.error}">
-            Email ou senha incorreto.</div>
+            O usuário não existe ou as credenciais são inválidas.</div>
         <div class="error" th:if="${param.logout}">
             Deslogado com sucesso.</div>
         <form  class="login-form" th:action="@{/login}" method="post">
             <div>
-                <input type="text" name="email" placeholder="Email"/>
+                <input type="text" name="username" placeholder="Email"/>
             </div>
             <div>
                 <input type="password" name="password" placeholder="Senha"/>

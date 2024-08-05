@@ -8,6 +8,7 @@ import com.kaua.ecommerce.auth.infrastructure.oauth2.authorization.persistence.*
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntityRepository;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
+import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson2.CoreJackson2Module;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Component
@@ -131,7 +133,7 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
                 .orElse(null);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public OAuth2Authorization findByToken(final String token, final OAuth2TokenType tokenType) {
         if (tokenType == null) {
@@ -139,6 +141,8 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
                     .findByStateOrAuthorizationCodeValueOrAccessTokenValueOrRefreshTokenValueOrOidcIdTokenValueOrUserCodeValueOrDeviceCodeValue(token).map(this::toObject).orElse(null);
         }
 
+        // talvez fazer o renew do mfa aqui no find by refresh token
+        // caso não seja feito o findby refresh token ele vai expirar o MFA
         Optional<AuthorizationEntity> result = switch (tokenType.getValue()) {
             case OAuth2ParameterNames.STATE -> this.authorizationRepository.findByState(token);
             case OAuth2ParameterNames.CODE -> this.authorizationRepository.findByAuthorizationCodeValue(token);
@@ -149,6 +153,28 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
             case OAuth2ParameterNames.DEVICE_CODE -> this.authorizationRepository.findByDeviceCodeValue(token);
             default -> Optional.empty();
         };
+
+        if (tokenType.getValue().equals(OAuth2ParameterNames.REFRESH_TOKEN)) {
+            result.ifPresent(entity -> {
+                final var aUser = this.userJpaEntityRepository
+                        .findById(UUID.fromString(entity.getPrincipalName())).get();
+
+                if (!aUser.getMfa().isMfaEnabled()) {
+                    return;
+                }
+
+                if (entity.getRefreshToken().getExpiresAt().isBefore(InstantUtils.now())) {
+                    aUser.getMfa().setMfaVerified(false);
+                    this.userJpaEntityRepository.save(aUser);
+                } else {
+                    // adicionamos ao expires at uma margem de 30 minutos
+                    final var aValidUntil = entity.getRefreshToken().getExpiresAt()
+                            .plus(30, ChronoUnit.MINUTES);
+                    aUser.getMfa().setValidUntil(aValidUntil);
+                    this.userJpaEntityRepository.save(aUser);
+                }
+            });
+        }
 
         return result.map(this::toObject).orElse(null);
     }
@@ -199,7 +225,6 @@ public class AuthorizationServiceRepositoryImpl implements OAuth2AuthorizationSe
         final OAuth2Authorization.Token<OAuth2RefreshToken> aRefreshToken = authorization.getToken(OAuth2RefreshToken.class);
         if (aRefreshToken != null) {
             if (entity.getRefreshToken() != null) {
-                refreshValidUntilMfa(entity, aRefreshToken);
                 entity.getRefreshToken().setValue(aRefreshToken.getToken().getTokenValue());
                 entity.getRefreshToken().setIssuedAt(aRefreshToken.getToken().getIssuedAt());
                 entity.getRefreshToken().setExpiresAt(aRefreshToken.getToken().getExpiresAt());
