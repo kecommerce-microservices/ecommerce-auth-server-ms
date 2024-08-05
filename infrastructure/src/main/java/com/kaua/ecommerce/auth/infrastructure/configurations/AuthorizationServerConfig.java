@@ -42,6 +42,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -105,7 +106,7 @@ public class AuthorizationServerConfig {
                 )
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/assets/**", "/webjars/**", "/css/**", "/login", "/error").permitAll()
-                        .requestMatchers("/v1/oauth2-clients/**").hasAuthority("manage-oauth2-clients")
+                        .requestMatchers("/v1/oauth2-clients/**").hasAnyAuthority("manage-oauth2-clients", "*")
                         .anyRequest().authenticated()
                 )
                 // Form login handles the redirect to the login page from the
@@ -142,6 +143,7 @@ public class AuthorizationServerConfig {
 
             if (authGrantType.getValue().equals(aClientCredentialsType)) {
                 context.getClaims()
+                        .claim(CustomTokenClaimsUtils.AUTHORITIES, Set.of(CustomTokenClaimsUtils.ALL_AUTHORITIES))
                         .claim(CustomTokenClaimsUtils.IS_MICROSERVICE, true);
                 return;
             }

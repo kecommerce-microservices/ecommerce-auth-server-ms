@@ -3,6 +3,7 @@ package com.kaua.ecommerce.auth.infrastructure;
 import com.kaua.ecommerce.auth.config.JpaCleanUpExtension;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.autoconfigure.data.redis.AutoConfigureDataRedis;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -22,6 +23,7 @@ import java.lang.annotation.*;
         }
 )
 @DataJpaTest
+@AutoConfigureDataRedis
 @ExtendWith(JpaCleanUpExtension.class)
 @Tag("integrationTest")
 public @interface DatabaseRepositoryTest {

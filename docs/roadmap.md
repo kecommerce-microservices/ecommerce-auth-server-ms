@@ -8,4 +8,6 @@
 - [ ] Adicionar a recuperação/troca de senha
 - [ ] Adicionar a confirmação de email
 - [ ] Adicionar a troca de email
-- [ ] Adicionar o login usando email e senha do usuário
+- [X] Adicionar o login usando email e senha do usuário
+- [ ] Adicionar o add / remove role do usuário (remove deve manter pelo menos uma role), rota de add deve ser limitada a 'manage-user-roles'
+- [X] Tokens emitidos para microservices devem conter ou roles específicas ou uma role global

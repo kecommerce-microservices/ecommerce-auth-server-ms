@@ -49,3 +49,8 @@ spring:
           batch_size: 10
         order_inserts: true
         order_updates: true
+  data:
+    redis:
+      database: 0
+      host: ${redis.url}
+      port: ${redis.port}
