@@ -3,6 +3,7 @@ package com.kaua.ecommerce.auth.infrastructure.rest.controllers;
 import com.kaua.ecommerce.auth.application.usecases.users.*;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.*;
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
+import com.kaua.ecommerce.auth.domain.users.UserId;
 import com.kaua.ecommerce.auth.infrastructure.rest.UserRestApi;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.ConfirmUserMfaDeviceRequest;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserMfaRequest;
@@ -30,19 +31,21 @@ public class UserRestController implements UserRestApi {
     private final ConfirmUserMfaDeviceUseCase confirmUserMfaDeviceUseCase;
     private final DisableUserMfaUseCase disableUserMfaUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final MarkAsDeleteUserUseCase markAsDeleteUserUseCase;
 
     public UserRestController(
             final CreateUserUseCase createUserUseCase,
             final CreateUserMfaUseCase createUserMfaUseCase,
             final ConfirmUserMfaDeviceUseCase confirmUserMfaDeviceUseCase,
             final DisableUserMfaUseCase disableUserMfaUseCase,
-            final UpdateUserUseCase updateUserUseCase
+            final UpdateUserUseCase updateUserUseCase, MarkAsDeleteUserUseCase markAsDeleteUserUseCase
     ) {
         this.createUserUseCase = Objects.requireNonNull(createUserUseCase);
         this.createUserMfaUseCase = Objects.requireNonNull(createUserMfaUseCase);
         this.confirmUserMfaDeviceUseCase = Objects.requireNonNull(confirmUserMfaDeviceUseCase);
         this.disableUserMfaUseCase = Objects.requireNonNull(disableUserMfaUseCase);
         this.updateUserUseCase = Objects.requireNonNull(updateUserUseCase);
+        this.markAsDeleteUserUseCase = Objects.requireNonNull(markAsDeleteUserUseCase);
     }
 
     @Override
@@ -84,6 +87,17 @@ public class UserRestController implements UserRestApi {
         log.info("User updated successfully: {}", aOutput);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(aOutput);
+    }
+
+    @Override
+    public void softDeleteUser(final UserDetailsImpl principal) {
+        log.debug("Received request to soft delete user userId: {}", principal.getUsername());
+
+        final var aInput = new UserId(principal.getUsername());
+
+        this.markAsDeleteUserUseCase.execute(aInput);
+
+        log.info("User soft deleted successfully");
     }
 
     @Override

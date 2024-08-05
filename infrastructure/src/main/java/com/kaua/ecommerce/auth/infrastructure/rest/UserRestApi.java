@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,15 +34,14 @@ public interface UserRestApi {
     ResponseEntity<CreateUserOutput> createUser(@RequestBody CreateUserRequest request);
 
     @PatchMapping(
-            value = "/update",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @Operation(summary = "Update user")
+    @Operation(summary = "Update authenticated user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "404", description = "User authenticated not found"),
             @ApiResponse(responseCode = "422", description = "A validation error was observed"),
             @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
     })
@@ -49,6 +49,16 @@ public interface UserRestApi {
             @AuthenticationPrincipal final UserDetailsImpl principal,
             @RequestBody UpdateUserRequest request
     );
+
+    @DeleteMapping()
+    @Operation(summary = "Soft delete authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User authenticated not found"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    void softDeleteUser(@AuthenticationPrincipal final UserDetailsImpl principal);
 
     @PostMapping(
             value = "/mfa",
@@ -59,7 +69,7 @@ public interface UserRestApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User MFA created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "404", description = "User authenticated not found"),
             @ApiResponse(responseCode = "422", description = "A validation error was observed"),
             @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
     })
@@ -77,7 +87,7 @@ public interface UserRestApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User MFA device confirmed successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "404", description = "User authenticated not found"),
             @ApiResponse(responseCode = "422", description = "A validation error was observed"),
             @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
     })
@@ -97,7 +107,7 @@ public interface UserRestApi {
             @ApiResponse(responseCode = "200", description = "OTP code validated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "404", description = "User authenticated not found"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
             @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
     })
@@ -111,7 +121,7 @@ public interface UserRestApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "MFA disabled successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "404", description = "User authenticated not found"),
             @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
     })
     ResponseEntity<DisableUserMfaOutput> disableMfa(@AuthenticationPrincipal final UserDetailsImpl principal);
