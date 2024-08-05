@@ -4,7 +4,7 @@
 - [ ] Adicionar a criação das chaves RSA
 - [X] Adicionar as entidades e tabelas do auth server e talvez a criação dinâmica dos clients oauth2
 - [X] Adicionar a atualização do usuário
-- [ ] Adicionar o soft delete do usuário
+- [X] Adicionar o soft delete do usuário
 - [ ] Adicionar a recuperação/troca de senha
 - [ ] Adicionar a confirmação de email
 - [X] Adicionar a troca de email
