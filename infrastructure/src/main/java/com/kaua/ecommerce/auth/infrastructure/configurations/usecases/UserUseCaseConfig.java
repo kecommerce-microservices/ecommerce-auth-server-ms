@@ -55,4 +55,9 @@ public class UserUseCaseConfig {
     public UpdateUserUseCase updateUserUseCase() {
         return new DefaultUpdateUserUseCase(userRepository);
     }
+
+    @Bean
+    public MarkAsDeleteUserUseCase markAsDeleteUserUseCase() {
+        return new DefaultMarkAsDeleteUserUseCase(userRepository);
+    }
 }
