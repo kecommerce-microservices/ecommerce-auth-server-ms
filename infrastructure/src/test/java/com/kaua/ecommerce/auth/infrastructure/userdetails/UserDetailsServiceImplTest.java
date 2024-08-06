@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Set;
+
 @IntegrationTest
 class UserDetailsServiceImplTest {
 
@@ -97,5 +99,47 @@ class UserDetailsServiceImplTest {
         );
 
         Assertions.assertEquals(expectedMessage, aException.getMessage());
+    }
+
+    @Test
+    void givenAnUserWithThreeRolesTwoDeletedAndOneDefault_whenLoadUserByUsername_thenShouldReturnUserDetailsWithOneRole() {
+        final var aRoleDefault = Fixture.Roles.defaultRole();
+        final var aRoleOne = Fixture.Roles.randomRole();
+        final var aRoleTwo = Fixture.Roles.randomRole().markAsDeleted();
+        final var aRoleThree = Fixture.Roles.randomRole().markAsDeleted();
+
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aRoleDefault));
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aRoleOne));
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aRoleTwo));
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aRoleThree));
+
+        final var aUser = Fixture.Users.randomUser(aRoleDefault.getId());
+        aUser.addRoles(Set.of(aRoleOne.getId(), aRoleTwo.getId(), aRoleThree.getId()));
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+        Assertions.assertEquals(4, this.roleJpaEntityRepository.count());
+
+        final var aUserDetailsService = new UserDetailsServiceImpl(
+                userJpaEntityRepository,
+                roleJpaEntityRepository
+        );
+
+        final var aUserDetails = Assertions.assertDoesNotThrow(() ->
+                aUserDetailsService.loadUserByUsername(aUser.getEmail().value()));
+
+        Assertions.assertEquals(aUser.getId().value().toString(), aUserDetails.getUsername());
+        Assertions.assertEquals(aUser.getPassword().value(), aUserDetails.getPassword());
+        Assertions.assertEquals(2, aUserDetails.getAuthorities().size());
+        Assertions.assertTrue(aUserDetails.isAccountNonExpired());
+        Assertions.assertTrue(aUserDetails.isAccountNonLocked());
+        Assertions.assertTrue(aUserDetails.isCredentialsNonExpired());
+        Assertions.assertTrue(aUserDetails.isEnabled());
+
+        final var aUserAfterRemoveDeletedRoles = this.userJpaEntityRepository
+                .findById(aUser.getId().value()).get().toDomain();
+
+        Assertions.assertEquals(2, aUserAfterRemoveDeletedRoles.getRoles().size());
     }
 }
