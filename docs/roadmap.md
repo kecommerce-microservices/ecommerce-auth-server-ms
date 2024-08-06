@@ -5,7 +5,7 @@
 - [X] Adicionar as entidades e tabelas do auth server e talvez a criação dinâmica dos clients oauth2
 - [X] Adicionar a atualização do usuário
 - [X] Adicionar o soft delete do usuário
-- [ ] Adicionar o get do usuário (com token ou com id)
+- [X] Adicionar o get do usuário (com token ou com id)
 - [ ] Adicionar a recuperação/troca de senha
 - [ ] Adicionar a confirmação de email
 - [X] Adicionar a troca de email

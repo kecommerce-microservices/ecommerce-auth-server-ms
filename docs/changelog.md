@@ -14,6 +14,7 @@
 - [X] Adicionado a troca de email e update do user
 - [X] Adicionado o soft delete do usuário
 - [X] Adicionado o add / remove de roles do usuário
+- [X] Adicionado o get por id ou token do usuário
 
 # 0.1.0
 - [X] Adicionado o arquivo de changelog
