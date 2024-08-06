@@ -1,10 +1,7 @@
 package com.kaua.ecommerce.auth.infrastructure.rest;
 
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.ConfirmUserMfaDeviceRequest;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserMfaRequest;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserRequest;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.UpdateUserRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.req.*;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,6 +45,41 @@ public interface UserRestApi {
     ResponseEntity<UpdateUserOutput> updateUser(
             @AuthenticationPrincipal final UserDetailsImpl principal,
             @RequestBody UpdateUserRequest request
+    );
+
+    @PatchMapping(
+            value = "/{id}/add-roles",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Add roles to user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Roles added successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "422", description = "A validation error was observed"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    ResponseEntity<AddRolesToUserOutput> addRolesToUser(
+            @PathVariable("id") final String userId,
+            @RequestBody AddRolesToUserRequest request
+    );
+
+    @PatchMapping(
+            value = "/{id}/remove-role/{roleId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Remove role from user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Role removed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "422", description = "A validation error was observed"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    ResponseEntity<RemoveUserRoleOutput> removeRoleFromUser(
+            @PathVariable("id") final String userId,
+            @PathVariable("roleId") final String roleId
     );
 
     @DeleteMapping()
