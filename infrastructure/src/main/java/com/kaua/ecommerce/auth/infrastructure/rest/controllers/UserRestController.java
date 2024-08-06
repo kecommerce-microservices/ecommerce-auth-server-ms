@@ -6,6 +6,7 @@ import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
 import com.kaua.ecommerce.auth.domain.users.UserId;
 import com.kaua.ecommerce.auth.infrastructure.rest.UserRestApi;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.*;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.res.GetUserByIdResponse;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ public class UserRestController implements UserRestApi {
     private final MarkAsDeleteUserUseCase markAsDeleteUserUseCase;
     private final AddRolesToUserUseCase addRolesToUserUseCase;
     private final RemoveUserRoleUseCase removeUserRoleUseCase;
+    private final GetUserByIdUseCase getUserByIdUseCase;
 
     public UserRestController(
             final CreateUserUseCase createUserUseCase,
@@ -41,7 +43,8 @@ public class UserRestController implements UserRestApi {
             final UpdateUserUseCase updateUserUseCase,
             final MarkAsDeleteUserUseCase markAsDeleteUserUseCase,
             final AddRolesToUserUseCase addRolesToUserUseCase,
-            final RemoveUserRoleUseCase removeUserRoleUseCase
+            final RemoveUserRoleUseCase removeUserRoleUseCase,
+            final GetUserByIdUseCase getUserByIdUseCase
     ) {
         this.createUserUseCase = Objects.requireNonNull(createUserUseCase);
         this.createUserMfaUseCase = Objects.requireNonNull(createUserMfaUseCase);
@@ -51,6 +54,7 @@ public class UserRestController implements UserRestApi {
         this.markAsDeleteUserUseCase = Objects.requireNonNull(markAsDeleteUserUseCase);
         this.addRolesToUserUseCase = Objects.requireNonNull(addRolesToUserUseCase);
         this.removeUserRoleUseCase = Objects.requireNonNull(removeUserRoleUseCase);
+        this.getUserByIdUseCase = Objects.requireNonNull(getUserByIdUseCase);
     }
 
     @Override
@@ -71,6 +75,32 @@ public class UserRestController implements UserRestApi {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .location(URI.create("/v1/users/" + aOutput.userId()))
                 .body(aOutput);
+    }
+
+    @Override
+    public ResponseEntity<GetUserByIdResponse> getUserById(final String id) {
+        log.debug("Received request to get user by id: {}", id);
+
+        final var aInput = new GetUserByIdInput(UUID.fromString(id));
+
+        final var aOutput = this.getUserByIdUseCase.execute(aInput);
+
+        log.debug("User found: {}", aOutput);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GetUserByIdResponse(aOutput));
+    }
+
+    @Override
+    public ResponseEntity<GetUserByIdResponse> getAuthenticatedUser(final UserDetailsImpl principal) {
+        log.debug("Received request to get authenticated user: {}", principal.getUsername());
+
+        final var aInput = new GetUserByIdInput(UUID.fromString(principal.getUsername()));
+
+        final var aOutput = this.getUserByIdUseCase.execute(aInput);
+
+        log.debug("User authenticated found: {}", aOutput);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new GetUserByIdResponse(aOutput));
     }
 
     @Override
