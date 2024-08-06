@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -32,6 +33,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     // in this code have 2 calls to DB, one to get the user and another to get the roles
 
+    @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final var aUser = this.userJpaEntityRepository.findByEmail(username)
@@ -48,7 +50,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
     }
 
-    @Transactional
     private Collection<GrantedAuthority> getAuthorities(final UserJpaEntity aUser) {
         final var aRolesIds = aUser.getRoles().stream()
                 .map(it -> it.getId().getRoleId())
