@@ -3,6 +3,7 @@ package com.kaua.ecommerce.auth.domain.users;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfa;
 import com.kaua.ecommerce.lib.domain.AggregateRoot;
+import com.kaua.ecommerce.lib.domain.exceptions.DomainException;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 
@@ -103,6 +104,27 @@ public class User extends AggregateRoot<UserId> {
         this.setDeletedAt(InstantUtils.now());
         this.setUpdatedAt(InstantUtils.now());
         return this;
+    }
+
+    public void addRoles(final Set<RoleId> aRoles) {
+        if (aRoles == null || aRoles.isEmpty()) {
+            return;
+        }
+
+        this.roles.addAll(aRoles);
+        this.setUpdatedAt(InstantUtils.now());
+    }
+
+    public void removeRole(final RoleId aRoleId) {
+        if (aRoleId == null) {
+            return;
+        }
+
+        if (this.roles.size() == 1) {
+            throw DomainException.with("User must have at least one role");
+        }
+        this.roles.remove(aRoleId);
+        this.setUpdatedAt(InstantUtils.now());
     }
 
     public static User with(
