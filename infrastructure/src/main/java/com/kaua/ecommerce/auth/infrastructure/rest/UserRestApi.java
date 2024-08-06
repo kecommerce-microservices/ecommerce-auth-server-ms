@@ -2,6 +2,7 @@ package com.kaua.ecommerce.auth.infrastructure.rest;
 
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
 import com.kaua.ecommerce.auth.infrastructure.rest.models.req.*;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.res.GetUserByIdResponse;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,6 +30,31 @@ public interface UserRestApi {
             @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
     })
     ResponseEntity<CreateUserOutput> createUser(@RequestBody CreateUserRequest request);
+
+    @GetMapping(
+            value = "/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Get user by it's identifier")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable("id") final String id);
+
+    @GetMapping(
+            value = "/me",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Get authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found successfully"),
+            @ApiResponse(responseCode = "404", description = "User authenticated not found"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    ResponseEntity<GetUserByIdResponse> getAuthenticatedUser(@AuthenticationPrincipal final UserDetailsImpl principal);
 
     @PatchMapping(
             consumes = MediaType.APPLICATION_JSON_VALUE,

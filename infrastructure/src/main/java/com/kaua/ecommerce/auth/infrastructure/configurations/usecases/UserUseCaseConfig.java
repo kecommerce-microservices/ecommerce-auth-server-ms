@@ -70,4 +70,9 @@ public class UserUseCaseConfig {
     public RemoveUserRoleUseCase removeUserRoleUseCase() {
         return new DefaultRemoveUserRoleUseCase(userRepository);
     }
+
+    @Bean
+    public GetUserByIdUseCase getUserByIdUseCase() {
+        return new DefaultGetUserByIdUseCase(userRepository, roleRepository);
+    }
 }

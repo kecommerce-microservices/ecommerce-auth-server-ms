@@ -6,9 +6,12 @@ import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserInput
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.CreateUserMfaInput;
 import com.kaua.ecommerce.auth.application.usecases.users.inputs.UpdateUserInput;
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
+import com.kaua.ecommerce.auth.domain.Fixture;
+import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.auth.infrastructure.ApiTest;
 import com.kaua.ecommerce.auth.infrastructure.ControllerTest;
 import com.kaua.ecommerce.auth.infrastructure.rest.controllers.UserRestController;
+import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -21,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -56,6 +61,9 @@ class UserRestApiTest {
 
     @MockBean
     private RemoveUserRoleUseCase removeUserRoleUseCase;
+
+    @MockBean
+    private GetUserByIdUseCase getUserByIdUseCase;
 
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
@@ -366,5 +374,109 @@ class UserRestApiTest {
                 .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
 
         Mockito.verify(removeUserRoleUseCase, Mockito.times(1)).execute(Mockito.any());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallGetUserById_thenReturnUser() throws Exception {
+        final var aRole = Fixture.Roles.defaultRole();
+        final var aUser = Fixture.Users.randomUser(aRole.getId());
+        aUser.getMfa().createMfaOnDevice("123", "DEVICE", UserMfaType.TOTP);
+        aUser.getMfa().confirmDevice(InstantUtils.now());
+        aUser.getMfa().verifyMfa();
+
+        final var aRoles = Set.of(new GetUserByIdOutput.GetUserByIdRolesOutput(
+                aRole.getId().value().toString(),
+                aRole.getName().value()
+        ));
+
+        final var aUserId = aUser.getId().value().toString();
+
+        Mockito.when(getUserByIdUseCase.execute(any()))
+                .thenAnswer(call -> new GetUserByIdOutput(aUser, aRoles));
+
+        final var aRequest = MockMvcRequestBuilders.get("/v1/users/{id}", aUserId)
+                .with(ApiTest.admin(aUserId))
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aUserId))
+                .andExpect(jsonPath("$.first_name").value(aUser.getName().firstName()))
+                .andExpect(jsonPath("$.last_name").value(aUser.getName().lastName()))
+                .andExpect(jsonPath("$.full_name").value(aUser.getName().fullName()))
+                .andExpect(jsonPath("$.email").value(aUser.getEmail().value()))
+                .andExpect(jsonPath("$.roles[0].role_id").value(aRole.getId().value().toString()))
+                .andExpect(jsonPath("$.roles[0].role_name").value(aRole.getName().value()))
+                .andExpect(jsonPath("$.is_deleted").value(aUser.isDeleted()))
+                .andExpect(jsonPath("$.email_verified").value(aUser.isEmailVerified()))
+                .andExpect(jsonPath("$.mfa.mfa_id").value(aUser.getMfa().getId().value().toString()))
+                .andExpect(jsonPath("$.mfa.mfa_enabled").value(aUser.getMfa().isMfaEnabled()))
+                .andExpect(jsonPath("$.mfa.mfa_verified").value(aUser.getMfa().isMfaVerified()))
+                .andExpect(jsonPath("$.mfa.device_name").value(aUser.getMfa().getDeviceName().orElse(null)))
+                .andExpect(jsonPath("$.mfa.device_verified").value(aUser.getMfa().isDeviceVerified()))
+                .andExpect(jsonPath("$.mfa.mfa_type").value(aUser.getMfa().getMfaType().map(UserMfaType::name).orElse(null)))
+                .andExpect(jsonPath("$.mfa.valid_until").value(aUser.getMfa().getValidUntil().map(Instant::toString).orElse(null)))
+                .andExpect(jsonPath("$.created_at").value(aUser.getCreatedAt().toString()))
+                .andExpect(jsonPath("$.updated_at").value(aUser.getUpdatedAt().toString()))
+                .andExpect(jsonPath("$.deleted_at").value(aUser.getDeletedAt().orElse(null)));
+
+        Mockito.verify(getUserByIdUseCase, Mockito.times(1)).execute(Mockito.any());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallGetAuthenticatedUser_thenReturnUser() throws Exception {
+        final var aRole = Fixture.Roles.defaultRole();
+        final var aUser = Fixture.Users.randomUser(aRole.getId());
+        aUser.getMfa().createMfaOnDevice("123", "DEVICE", UserMfaType.TOTP);
+        aUser.getMfa().confirmDevice(InstantUtils.now());
+        aUser.getMfa().verifyMfa();
+
+        final var aRoles = Set.of(new GetUserByIdOutput.GetUserByIdRolesOutput(
+                aRole.getId().value().toString(),
+                aRole.getName().value()
+        ));
+
+        final var aUserId = aUser.getId().value().toString();
+
+        Mockito.when(getUserByIdUseCase.execute(any()))
+                .thenAnswer(call -> new GetUserByIdOutput(aUser, aRoles));
+
+        final var aRequest = MockMvcRequestBuilders.get("/v1/users/me")
+                .with(ApiTest.admin(aUserId))
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aUserId))
+                .andExpect(jsonPath("$.first_name").value(aUser.getName().firstName()))
+                .andExpect(jsonPath("$.last_name").value(aUser.getName().lastName()))
+                .andExpect(jsonPath("$.full_name").value(aUser.getName().fullName()))
+                .andExpect(jsonPath("$.email").value(aUser.getEmail().value()))
+                .andExpect(jsonPath("$.roles[0].role_id").value(aRole.getId().value().toString()))
+                .andExpect(jsonPath("$.roles[0].role_name").value(aRole.getName().value()))
+                .andExpect(jsonPath("$.is_deleted").value(aUser.isDeleted()))
+                .andExpect(jsonPath("$.email_verified").value(aUser.isEmailVerified()))
+                .andExpect(jsonPath("$.mfa.mfa_id").value(aUser.getMfa().getId().value().toString()))
+                .andExpect(jsonPath("$.mfa.mfa_enabled").value(aUser.getMfa().isMfaEnabled()))
+                .andExpect(jsonPath("$.mfa.mfa_verified").value(aUser.getMfa().isMfaVerified()))
+                .andExpect(jsonPath("$.mfa.device_name").value(aUser.getMfa().getDeviceName().orElse(null)))
+                .andExpect(jsonPath("$.mfa.device_verified").value(aUser.getMfa().isDeviceVerified()))
+                .andExpect(jsonPath("$.mfa.mfa_type").value(aUser.getMfa().getMfaType().map(UserMfaType::name).orElse(null)))
+                .andExpect(jsonPath("$.mfa.valid_until").value(aUser.getMfa().getValidUntil().map(Instant::toString).orElse(null)))
+                .andExpect(jsonPath("$.created_at").value(aUser.getCreatedAt().toString()))
+                .andExpect(jsonPath("$.updated_at").value(aUser.getUpdatedAt().toString()))
+                .andExpect(jsonPath("$.deleted_at").value(aUser.getDeletedAt().orElse(null)));
+
+        Mockito.verify(getUserByIdUseCase, Mockito.times(1)).execute(Mockito.any());
     }
 }
