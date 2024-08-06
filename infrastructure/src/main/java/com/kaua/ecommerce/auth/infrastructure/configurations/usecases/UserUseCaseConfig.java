@@ -60,4 +60,14 @@ public class UserUseCaseConfig {
     public MarkAsDeleteUserUseCase markAsDeleteUserUseCase() {
         return new DefaultMarkAsDeleteUserUseCase(userRepository);
     }
+
+    @Bean
+    public AddRolesToUserUseCase addRolesToUserUseCase() {
+        return new DefaultAddRolesToUserUseCase(userRepository, roleRepository);
+    }
+
+    @Bean
+    public RemoveUserRoleUseCase removeUserRoleUseCase() {
+        return new DefaultRemoveUserRoleUseCase(userRepository);
+    }
 }
