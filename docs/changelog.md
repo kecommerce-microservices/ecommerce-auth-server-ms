@@ -13,6 +13,7 @@
 - [X] Adicionado a role global para os tokens de microservices
 - [X] Adicionado a troca de email e update do user
 - [X] Adicionado o soft delete do usuário
+- [X] Adicionado o add / remove de roles do usuário
 
 # 0.1.0
 - [X] Adicionado o arquivo de changelog
