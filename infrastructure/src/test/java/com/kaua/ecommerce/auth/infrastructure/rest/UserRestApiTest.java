@@ -51,6 +51,12 @@ class UserRestApiTest {
     @MockBean
     private MarkAsDeleteUserUseCase markAsDeleteUserUseCase;
 
+    @MockBean
+    private AddRolesToUserUseCase addRolesToUserUseCase;
+
+    @MockBean
+    private RemoveUserRoleUseCase removeUserRoleUseCase;
+
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
 
@@ -301,5 +307,64 @@ class UserRestApiTest {
 
         Mockito.verify(markAsDeleteUserUseCase, Mockito.times(1))
                 .execute(Mockito.any());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallAddRolesToUser_thenReturnUserId() throws Exception {
+        final var aRolesIds = UUID.randomUUID().toString();
+
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.when(addRolesToUserUseCase.execute(any()))
+                .thenAnswer(call -> new AddRolesToUserOutput(aExpectedUserId));
+
+        var json = """
+                {
+                    "roles_ids": ["%s"]
+                }
+                """.formatted(aRolesIds);
+
+        final var aRequest = MockMvcRequestBuilders.patch("/v1/users/{id}/add-roles", aExpectedUserId)
+                .with(ApiTest.admin(aExpectedUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(json);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
+
+        Mockito.verify(addRolesToUserUseCase, Mockito.times(1)).execute(Mockito.any());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallRemoveRoleFromUser_thenReturnUserId() throws Exception {
+        final var aRoleId = UUID.randomUUID().toString();
+
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.when(removeUserRoleUseCase.execute(any()))
+                .thenAnswer(call -> new RemoveUserRoleOutput(aExpectedUserId));
+
+        final var aRequest = MockMvcRequestBuilders.patch("/v1/users/{id}/remove-role/{roleId}", aExpectedUserId, aRoleId)
+                .with(ApiTest.admin(aExpectedUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
+
+        Mockito.verify(removeUserRoleUseCase, Mockito.times(1)).execute(Mockito.any());
     }
 }
