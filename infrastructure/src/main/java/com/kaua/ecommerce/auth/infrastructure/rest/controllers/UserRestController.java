@@ -5,10 +5,7 @@ import com.kaua.ecommerce.auth.application.usecases.users.inputs.*;
 import com.kaua.ecommerce.auth.application.usecases.users.outputs.*;
 import com.kaua.ecommerce.auth.domain.users.UserId;
 import com.kaua.ecommerce.auth.infrastructure.rest.UserRestApi;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.ConfirmUserMfaDeviceRequest;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserMfaRequest;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.CreateUserRequest;
-import com.kaua.ecommerce.auth.infrastructure.rest.models.req.UpdateUserRequest;
+import com.kaua.ecommerce.auth.infrastructure.rest.models.req.*;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.slf4j.Logger;
@@ -20,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 public class UserRestController implements UserRestApi {
@@ -32,13 +30,18 @@ public class UserRestController implements UserRestApi {
     private final DisableUserMfaUseCase disableUserMfaUseCase;
     private final UpdateUserUseCase updateUserUseCase;
     private final MarkAsDeleteUserUseCase markAsDeleteUserUseCase;
+    private final AddRolesToUserUseCase addRolesToUserUseCase;
+    private final RemoveUserRoleUseCase removeUserRoleUseCase;
 
     public UserRestController(
             final CreateUserUseCase createUserUseCase,
             final CreateUserMfaUseCase createUserMfaUseCase,
             final ConfirmUserMfaDeviceUseCase confirmUserMfaDeviceUseCase,
             final DisableUserMfaUseCase disableUserMfaUseCase,
-            final UpdateUserUseCase updateUserUseCase, MarkAsDeleteUserUseCase markAsDeleteUserUseCase
+            final UpdateUserUseCase updateUserUseCase,
+            final MarkAsDeleteUserUseCase markAsDeleteUserUseCase,
+            final AddRolesToUserUseCase addRolesToUserUseCase,
+            final RemoveUserRoleUseCase removeUserRoleUseCase
     ) {
         this.createUserUseCase = Objects.requireNonNull(createUserUseCase);
         this.createUserMfaUseCase = Objects.requireNonNull(createUserMfaUseCase);
@@ -46,6 +49,8 @@ public class UserRestController implements UserRestApi {
         this.disableUserMfaUseCase = Objects.requireNonNull(disableUserMfaUseCase);
         this.updateUserUseCase = Objects.requireNonNull(updateUserUseCase);
         this.markAsDeleteUserUseCase = Objects.requireNonNull(markAsDeleteUserUseCase);
+        this.addRolesToUserUseCase = Objects.requireNonNull(addRolesToUserUseCase);
+        this.removeUserRoleUseCase = Objects.requireNonNull(removeUserRoleUseCase);
     }
 
     @Override
@@ -85,6 +90,46 @@ public class UserRestController implements UserRestApi {
         final var aOutput = this.updateUserUseCase.execute(aInput);
 
         log.info("User updated successfully: {}", aOutput);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(aOutput);
+    }
+
+    @Override
+    public ResponseEntity<AddRolesToUserOutput> addRolesToUser(
+            final String userId,
+            final AddRolesToUserRequest request
+    ) {
+        log.debug("Received request to add roles to user: {}", request);
+
+        final var aInput = new AddRolesToUserInput(
+                UUID.fromString(userId),
+                request.rolesIds().stream()
+                        .map(UUID::fromString)
+                        .collect(Collectors.toSet())
+        );
+
+        final var aOutput = this.addRolesToUserUseCase.execute(aInput);
+
+        log.info("Roles added to user successfully: {}", aOutput);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(aOutput);
+    }
+
+    @Override
+    public ResponseEntity<RemoveUserRoleOutput> removeRoleFromUser(
+            final String userId,
+            final String roleId
+    ) {
+        log.debug("Received request to remove role from user userId: {} roleId: {}", userId, roleId);
+
+        final var aInput = new RemoveUserRoleInput(
+                UUID.fromString(userId),
+                UUID.fromString(roleId)
+        );
+
+        final var aOutput = this.removeUserRoleUseCase.execute(aInput);
+
+        log.info("Role removed from user successfully: {}", aOutput);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(aOutput);
     }

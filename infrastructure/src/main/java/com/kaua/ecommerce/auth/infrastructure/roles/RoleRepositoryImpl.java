@@ -17,15 +17,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class RoleRepositoryImpl implements RoleRepository {
 
-    private static Logger log = LoggerFactory.getLogger(RoleRepositoryImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(RoleRepositoryImpl.class);
 
     private final RoleJpaEntityRepository roleJpaEntityRepository;
 
@@ -65,7 +63,7 @@ public class RoleRepositoryImpl implements RoleRepository {
 
     @Override
     public int countIsDefaultRoles() {
-        return this.roleJpaEntityRepository.countByIsDefaultTrue();
+        return this.roleJpaEntityRepository.countByIsDefaultTrueAndIsDeletedFalse();
     }
 
     @Override
@@ -107,6 +105,13 @@ public class RoleRepositoryImpl implements RoleRepository {
         return this.roleJpaEntityRepository.findAllByIsDefaultTrueAndIsDeletedFalse()
                 .stream().map(RoleJpaEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Set<Role> findByIds(Set<UUID> ids) {
+        return this.roleJpaEntityRepository.findAllByIdInAndIsDeletedFalse(ids)
+                .stream().map(RoleJpaEntity::toDomain)
+                .collect(Collectors.toSet());
     }
 
     private Specification<RoleJpaEntity> assembleSpecification(final String terms) {

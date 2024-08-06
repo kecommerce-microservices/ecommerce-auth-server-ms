@@ -5,9 +5,10 @@
 - [X] Adicionar as entidades e tabelas do auth server e talvez a criação dinâmica dos clients oauth2
 - [X] Adicionar a atualização do usuário
 - [X] Adicionar o soft delete do usuário
+- [ ] Adicionar o get do usuário (com token ou com id)
 - [ ] Adicionar a recuperação/troca de senha
 - [ ] Adicionar a confirmação de email
 - [X] Adicionar a troca de email
 - [X] Adicionar o login usando email e senha do usuário
-- [ ] Adicionar o add / remove role do usuário (remove deve manter pelo menos uma role), rota de add deve ser limitada a 'manage-user-roles'
+- [X] Adicionar o add / remove role do usuário (remove deve manter pelo menos uma role), rota de add deve ser limitada a 'manage-user-roles'
 - [X] Tokens emitidos para microservices devem conter ou roles específicas ou uma role global

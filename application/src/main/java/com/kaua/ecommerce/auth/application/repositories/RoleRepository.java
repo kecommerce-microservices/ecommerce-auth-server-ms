@@ -6,6 +6,7 @@ import com.kaua.ecommerce.lib.domain.pagination.SearchQuery;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface RoleRepository {
@@ -23,4 +24,6 @@ public interface RoleRepository {
     Pagination<Role> findAll(SearchQuery query);
 
     List<Role> getDefaultRoles();
+
+    Set<Role> findByIds(Set<UUID> ids);
 }

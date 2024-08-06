@@ -211,4 +211,87 @@ class UserTest extends UnitTest {
         Assertions.assertTrue(aUserDeleted.getDeletedAt().isPresent());
         Assertions.assertTrue(aUserDeleted.getDeletedAt().get().isAfter(aDeletedAt.orElse(InstantUtils.now().minusSeconds(1))));
     }
+
+    @Test
+    void givenAValidRoles_whenCallAddRoles_thenShouldAddRoles() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aRoles = Set.of(new RoleId(IdentifierUtils.generateNewId()));
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        aUser.addRoles(aRoles);
+
+        Assertions.assertTrue(aUser.getRoles().containsAll(aRoles));
+        Assertions.assertTrue(aUser.getUpdatedAt().isAfter(aUpdatedAt));
+    }
+
+    @Test
+    void givenAValidRoleId_whenCallRemoveRole_thenShouldRemoveRole() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aRandomRole = Fixture.Roles.randomRole();
+
+        final var aRoleId = aRandomRole.getId();
+
+        aUser.addRoles(Set.of(aRoleId));
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        aUser.removeRole(aRoleId);
+
+        Assertions.assertFalse(aUser.getRoles().contains(aRoleId));
+        Assertions.assertTrue(aUser.getUpdatedAt().isAfter(aUpdatedAt));
+    }
+
+    @Test
+    void givenAnOneRole_whenCallRemoveRole_thenShouldThrowDomainException() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aMessage = "User must have at least one role";
+
+        final var aException = Assertions.assertThrows(DomainException.class,
+                () -> aUser.removeRole(aRole));
+
+        Assertions.assertEquals(aMessage, aException.getMessage());
+    }
+
+    @Test
+    void givenAnNullRoleId_whenCallRemoveRole_thenShouldDoNothing() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        aUser.removeRole(null);
+
+        Assertions.assertEquals(aUser.getUpdatedAt(), aUpdatedAt);
+    }
+
+    @Test
+    void givenAnEmptyRoles_whenCallAddRoles_thenShouldDoNothing() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        aUser.addRoles(Set.of());
+
+        Assertions.assertEquals(aUser.getUpdatedAt(), aUpdatedAt);
+    }
+
+    @Test
+    void givenAnNullRoles_whenCallAddRoles_thenShouldDoNothing() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        aUser.addRoles(null);
+
+        Assertions.assertEquals(aUser.getUpdatedAt(), aUpdatedAt);
+    }
 }

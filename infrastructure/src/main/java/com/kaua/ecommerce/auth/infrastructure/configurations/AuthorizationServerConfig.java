@@ -106,6 +106,8 @@ public class AuthorizationServerConfig {
                 )
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/assets/**", "/webjars/**", "/css/**", "/login", "/error").permitAll()
+                        .requestMatchers("/v1/roles/**").hasAnyAuthority("manage-roles", "*")
+                        .requestMatchers("/v1/users/add-roles", "/v1/users/remove-role").hasAnyAuthority("manage-users-roles", "*")
                         .requestMatchers("/v1/oauth2-clients/**").hasAnyAuthority("manage-oauth2-clients", "*")
                         .anyRequest().authenticated()
                 )
