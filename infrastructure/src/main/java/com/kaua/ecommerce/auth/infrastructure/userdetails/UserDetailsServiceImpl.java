@@ -1,5 +1,6 @@
 package com.kaua.ecommerce.auth.infrastructure.userdetails;
 
+import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntityRepository;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntityRepository;
@@ -31,7 +32,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     // in this code have 2 calls to DB, one to get the user and another to get the roles
 
-    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         final var aUser = this.userJpaEntityRepository.findByEmail(username)
@@ -48,13 +48,26 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         );
     }
 
+    @Transactional
     private Collection<GrantedAuthority> getAuthorities(final UserJpaEntity aUser) {
         final var aRolesIds = aUser.getRoles().stream()
                 .map(it -> it.getId().getRoleId())
                 .toList();
 
-        return this.roleJpaEntityRepository.findAllById(aRolesIds)
-                .stream()
+        final var aRoles = this.roleJpaEntityRepository.findAllById(aRolesIds);
+
+        final var aUserRolesDeleted = aRoles.stream()
+                .filter(RoleJpaEntity::isDeleted)
+                .collect(Collectors.toSet());
+
+        aUser.getRoles().removeIf(userRole ->
+                aUserRolesDeleted.stream().anyMatch(role ->
+                        userRole.getId().getRoleId().equals(role.getId())));
+
+        this.userJpaEntityRepository.save(aUser);
+
+        return aRoles.stream()
+                .filter(it -> !it.isDeleted())
                 .map(it -> new SimpleGrantedAuthority(it.getName()))
                 .collect(Collectors.toSet());
     }
