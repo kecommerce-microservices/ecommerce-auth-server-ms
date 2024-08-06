@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Set;
 
 @DatabaseRepositoryTest
 class RoleRepositoryImplTest {
@@ -409,5 +410,86 @@ class RoleRepositoryImplTest {
 
         Assertions.assertEquals(1, aResult.size());
         Assertions.assertEquals(aRoleUser.getId(), aResult.get(0).getId());
+    }
+
+    @Test
+    void givenAnTwoPersistedRoles_whenCallFindByIds_shouldReturnTwoRoles() {
+        final var aRoleUser = Role.create(
+                new RoleName("User"),
+                new RoleDescription(""),
+                true
+        );
+        final var aRoleAdmin = Role.create(
+                new RoleName("Admin"),
+                new RoleDescription("Admin user"),
+                false
+        );
+
+        Assertions.assertEquals(0, roleJpaEntityRepository.count());
+
+        roleJpaEntityRepository.saveAllAndFlush(List.of(
+                RoleJpaEntity.toEntity(aRoleUser),
+                RoleJpaEntity.toEntity(aRoleAdmin)
+        ));
+
+        Assertions.assertEquals(2, roleJpaEntityRepository.count());
+
+        final var aResult = roleRepositoryImpl.findByIds(Set.of(aRoleUser.getId().value(), aRoleAdmin.getId().value()));
+
+        Assertions.assertEquals(2, aResult.size());
+    }
+
+    @Test
+    void givenAnOneDeletedRoleAndOnePersistedRole_whenCallFindByIds_shouldReturnOneRole() {
+        final var aRoleUser = Role.create(
+                new RoleName("User"),
+                new RoleDescription(""),
+                true
+        );
+        final var aRoleAdmin = Role.create(
+                new RoleName("Admin"),
+                new RoleDescription("Admin user"),
+                false
+        ).markAsDeleted();
+
+        Assertions.assertEquals(0, roleJpaEntityRepository.count());
+
+        roleJpaEntityRepository.saveAllAndFlush(List.of(
+                RoleJpaEntity.toEntity(aRoleUser),
+                RoleJpaEntity.toEntity(aRoleAdmin)
+        ));
+
+        Assertions.assertEquals(2, roleJpaEntityRepository.count());
+
+        final var aResult = roleRepositoryImpl.findByIds(Set.of(aRoleUser.getId().value(), aRoleAdmin.getId().value()));
+
+        Assertions.assertEquals(1, aResult.size());
+    }
+
+    @Test
+    void givenAnOneDeletedDefaultRoleAndOnePersistedDefaultRole_whenCallCountIsDefaultRoles_shouldReturnOne() {
+        final var aRoleUser = Role.create(
+                new RoleName("User"),
+                new RoleDescription(""),
+                true
+        );
+        final var aRoleAdmin = Role.create(
+                new RoleName("Admin"),
+                new RoleDescription("Admin user"),
+                true
+        ).markAsDeleted();
+
+        Assertions.assertEquals(0, roleJpaEntityRepository.count());
+
+        roleJpaEntityRepository.saveAllAndFlush(List.of(
+                RoleJpaEntity.toEntity(aRoleUser),
+                RoleJpaEntity.toEntity(aRoleAdmin)
+        ));
+
+        Assertions.assertEquals(2, roleJpaEntityRepository.count());
+
+        final var aResult = roleRepositoryImpl.countIsDefaultRoles();
+
+        Assertions.assertEquals(1, aResult);
     }
 }
