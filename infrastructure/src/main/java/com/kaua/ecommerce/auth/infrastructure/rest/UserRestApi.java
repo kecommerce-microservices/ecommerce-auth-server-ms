@@ -108,6 +108,20 @@ public interface UserRestApi {
             @PathVariable("roleId") final String roleId
     );
 
+    @PatchMapping(
+            value = "/email-confirm/{token}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Confirm user email")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Email confirmed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User or token not found"),
+            @ApiResponse(responseCode = "422", description = "A validation error was observed"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    ResponseEntity<ConfirmUserEmailOutput> confirmEmail(@PathVariable("token") final String token);
+
     @DeleteMapping()
     @Operation(summary = "Soft delete authenticated user")
     @ApiResponses(value = {

@@ -34,6 +34,7 @@ public class UserRestController implements UserRestApi {
     private final AddRolesToUserUseCase addRolesToUserUseCase;
     private final RemoveUserRoleUseCase removeUserRoleUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
+    private final ConfirmUserEmailUseCase confirmUserEmailUseCase;
 
     public UserRestController(
             final CreateUserUseCase createUserUseCase,
@@ -44,7 +45,8 @@ public class UserRestController implements UserRestApi {
             final MarkAsDeleteUserUseCase markAsDeleteUserUseCase,
             final AddRolesToUserUseCase addRolesToUserUseCase,
             final RemoveUserRoleUseCase removeUserRoleUseCase,
-            final GetUserByIdUseCase getUserByIdUseCase
+            final GetUserByIdUseCase getUserByIdUseCase,
+            final ConfirmUserEmailUseCase confirmUserEmailUseCase
     ) {
         this.createUserUseCase = Objects.requireNonNull(createUserUseCase);
         this.createUserMfaUseCase = Objects.requireNonNull(createUserMfaUseCase);
@@ -55,6 +57,7 @@ public class UserRestController implements UserRestApi {
         this.addRolesToUserUseCase = Objects.requireNonNull(addRolesToUserUseCase);
         this.removeUserRoleUseCase = Objects.requireNonNull(removeUserRoleUseCase);
         this.getUserByIdUseCase = Objects.requireNonNull(getUserByIdUseCase);
+        this.confirmUserEmailUseCase = Objects.requireNonNull(confirmUserEmailUseCase);
     }
 
     @Override
@@ -160,6 +163,19 @@ public class UserRestController implements UserRestApi {
         final var aOutput = this.removeUserRoleUseCase.execute(aInput);
 
         log.info("Role removed from user successfully: {}", aOutput);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(aOutput);
+    }
+
+    @Override
+    public ResponseEntity<ConfirmUserEmailOutput> confirmEmail(final String token) {
+        log.debug("Received request to confirm user email token: {}", token);
+
+        final var aInput = new ConfirmUserEmailInput(token);
+
+        final var aOutput = this.confirmUserEmailUseCase.execute(aInput);
+
+        log.info("User email confirmed successfully: {}", aOutput);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(aOutput);
     }
