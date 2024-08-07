@@ -117,4 +117,68 @@ class MailTokenTest extends UnitTest {
         Assertions.assertTrue(aMailTypeOf.isPresent());
         Assertions.assertEquals(aMailType, aMailTypeOf.get());
     }
+
+    @Test
+    void givenAValidMailTokenButExpired_whenCallIsExpired_thenShouldReturnTrue() {
+        final var aMail = Fixture.Users.email();
+        final var aUserId = new UserId(IdentifierUtils.generateNewUUID());
+        final var aToken = IdentifierUtils.generateNewIdWithoutHyphen();
+        final var aType = MailType.EMAIL_CONFIRMATION;
+        final var aExpiresAt = InstantUtils.now().minus(10, ChronoUnit.HOURS);
+
+        final var aMailToken = MailToken.newMailToken(
+                aMail,
+                aUserId,
+                aToken,
+                aType,
+                aExpiresAt
+        );
+
+        final var aIsExpired = aMailToken.isExpired();
+
+        Assertions.assertTrue(aIsExpired);
+    }
+
+    @Test
+    void givenAValidMailTokenButNotExpired_whenCallIsExpired_thenShouldReturnFalse() {
+        final var aMail = Fixture.Users.email();
+        final var aUserId = new UserId(IdentifierUtils.generateNewUUID());
+        final var aToken = IdentifierUtils.generateNewIdWithoutHyphen();
+        final var aType = MailType.EMAIL_CONFIRMATION;
+        final var aExpiresAt = InstantUtils.now().plus(10, ChronoUnit.HOURS);
+
+        final var aMailToken = MailToken.newMailToken(
+                aMail,
+                aUserId,
+                aToken,
+                aType,
+                aExpiresAt
+        );
+
+        final var aIsExpired = aMailToken.isExpired();
+
+        Assertions.assertFalse(aIsExpired);
+    }
+
+    @Test
+    void givenAValidMailToken_whenCallMarkAsUsed_thenShouldReturnTrue() {
+        final var aMail = Fixture.Users.email();
+        final var aUserId = new UserId(IdentifierUtils.generateNewUUID());
+        final var aToken = IdentifierUtils.generateNewIdWithoutHyphen();
+        final var aType = MailType.EMAIL_CONFIRMATION;
+        final var aExpiresAt = InstantUtils.now().plus(10, ChronoUnit.HOURS);
+
+        final var aMailToken = MailToken.newMailToken(
+                aMail,
+                aUserId,
+                aToken,
+                aType,
+                aExpiresAt
+        );
+
+        aMailToken.markAsUsed();
+
+        Assertions.assertTrue(aMailToken.isUsed());
+        Assertions.assertTrue(aMailToken.getUsedAt().isPresent());
+    }
 }
