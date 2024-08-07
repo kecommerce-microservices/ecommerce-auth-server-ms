@@ -307,4 +307,19 @@ class UserTest extends UnitTest {
         Assertions.assertTrue(aUser.isEmailVerified());
         Assertions.assertTrue(aUser.getUpdatedAt().isAfter(aUpdatedAt));
     }
+
+    @Test
+    void givenAValidUser_whenCallChangePassword_thenShouldChangePassword() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        final var aNewPassword = new UserPassword("123456Am@");
+
+        aUser.changePassword(aNewPassword);
+
+        Assertions.assertEquals(aNewPassword, aUser.getPassword());
+        Assertions.assertTrue(aUser.getUpdatedAt().isAfter(aUpdatedAt));
+    }
 }
