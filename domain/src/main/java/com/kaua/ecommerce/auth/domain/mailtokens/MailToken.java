@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public class MailToken extends AggregateRoot<MailId> {
 
+    private static final String SHOULD_NOT_BE_NULL = "should not be null";
+
     private String email;
     private UserId userId;
     private String token;
@@ -105,7 +107,7 @@ public class MailToken extends AggregateRoot<MailId> {
     }
 
     private void setUserId(final UserId userId) {
-        this.userId = this.assertArgumentNotNull(userId, "userId", "should not be null");
+        this.userId = this.assertArgumentNotNull(userId, "userId", SHOULD_NOT_BE_NULL);
     }
 
     public String getToken() {
@@ -129,7 +131,7 @@ public class MailToken extends AggregateRoot<MailId> {
     }
 
     private void setType(final MailType type) {
-        this.type = this.assertArgumentNotNull(type, "type", "should not be null");
+        this.type = this.assertArgumentNotNull(type, "type", SHOULD_NOT_BE_NULL);
     }
 
     public Optional<Instant> getUsedAt() {
@@ -145,7 +147,7 @@ public class MailToken extends AggregateRoot<MailId> {
     }
 
     private void setExpiresAt(final Instant expiresAt) {
-        this.expiresAt = this.assertArgumentNotNull(expiresAt, "expiresAt", "should not be null");
+        this.expiresAt = this.assertArgumentNotNull(expiresAt, "expiresAt", SHOULD_NOT_BE_NULL);
     }
 
     public Instant getCreatedAt() {
@@ -153,7 +155,7 @@ public class MailToken extends AggregateRoot<MailId> {
     }
 
     private void setCreatedAt(final Instant createdAt) {
-        this.createdAt = this.assertArgumentNotNull(createdAt, "createdAt", "should not be null");
+        this.createdAt = this.assertArgumentNotNull(createdAt, "createdAt", SHOULD_NOT_BE_NULL);
     }
 
     @Override

@@ -37,45 +37,6 @@ class MailTokenRestApiTest {
     @Captor
     private ArgumentCaptor<CreateMailTokenInput> createMailTokenInputCaptor;
 
-//    @MockBean
-//    private CreateUserUseCase createUserUseCase;
-//
-//    @MockBean
-//    private CreateUserMfaUseCase createUserMfaUseCase;
-//
-//    @MockBean
-//    private ConfirmUserMfaDeviceUseCase confirmUserMfaDeviceUseCase;
-//
-//    @MockBean
-//    private DisableUserMfaUseCase disableUserMfaUseCase;
-//
-//    @MockBean
-//    private UpdateUserUseCase updateUserUseCase;
-//
-//    @MockBean
-//    private MarkAsDeleteUserUseCase markAsDeleteUserUseCase;
-//
-//    @MockBean
-//    private AddRolesToUserUseCase addRolesToUserUseCase;
-//
-//    @MockBean
-//    private RemoveUserRoleUseCase removeUserRoleUseCase;
-//
-//    @MockBean
-//    private GetUserByIdUseCase getUserByIdUseCase;
-//
-//    @Captor
-//    private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
-//
-//    @Captor
-//    private ArgumentCaptor<CreateUserMfaInput> createUserMfaInputCaptor;
-//
-//    @Captor
-//    private ArgumentCaptor<ConfirmUserMfaDeviceInput> confirmUserMfaDeviceInputCaptor;
-//
-//    @Captor
-//    private ArgumentCaptor<UpdateUserInput> updateUserInputCaptor;
-
     @Test
     void givenAValidRequest_whenCallCreateMailConfirmationToken_thenReturnMailIdAndUserId() throws Exception {
         final var aMail = Fixture.Mails.mail(
