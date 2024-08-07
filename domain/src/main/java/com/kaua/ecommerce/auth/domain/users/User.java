@@ -112,6 +112,12 @@ public class User extends AggregateRoot<UserId> {
         return this;
     }
 
+    public User changePassword(final UserPassword aPassword) {
+        this.setPassword(aPassword);
+        this.setUpdatedAt(InstantUtils.now());
+        return this;
+    }
+
     public void addRoles(final Set<RoleId> aRoles) {
         if (aRoles == null || aRoles.isEmpty()) {
             return;
