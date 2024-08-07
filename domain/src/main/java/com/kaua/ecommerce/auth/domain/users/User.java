@@ -106,6 +106,12 @@ public class User extends AggregateRoot<UserId> {
         return this;
     }
 
+    public User confirmEmail() {
+        this.setEmailVerified(true);
+        this.setUpdatedAt(InstantUtils.now());
+        return this;
+    }
+
     public void addRoles(final Set<RoleId> aRoles) {
         if (aRoles == null || aRoles.isEmpty()) {
             return;

@@ -84,4 +84,9 @@ public class UserUseCaseConfig {
     public CreateMailTokenUseCase createMailTokenUseCase() {
         return new DefaultCreateMailTokenUseCase(mailRepository, userRepository);
     }
+
+    @Bean
+    public ConfirmUserEmailUseCase confirmUserEmailUseCase() {
+        return new DefaultConfirmUserEmailUseCase(userRepository, mailRepository);
+    }
 }

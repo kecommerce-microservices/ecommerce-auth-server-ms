@@ -46,6 +46,10 @@ public class DefaultCreateMailTokenUseCase extends CreateMailTokenUseCase {
             throw new UserIsDeletedException(aUser.getId().value().toString());
         }
 
+        if (aMailType.equals(MailType.EMAIL_CONFIRMATION) && aUser.isEmailVerified()) {
+            throw DomainException.with("User email is already verified");
+        }
+
         final var aMailsTokens = this.mailRepository.findByEmail(input.email());
 
         aMailsTokens.stream()

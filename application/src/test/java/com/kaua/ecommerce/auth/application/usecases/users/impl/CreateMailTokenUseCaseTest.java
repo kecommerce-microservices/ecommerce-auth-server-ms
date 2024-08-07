@@ -225,4 +225,28 @@ class CreateMailTokenUseCaseTest extends UseCaseTest {
         Mockito.verify(mailRepository, Mockito.times(0)).deleteByToken(Mockito.any());
         Mockito.verify(mailRepository, Mockito.times(0)).save(Mockito.any());
     }
+
+    @Test
+    void givenAUserIsEmailVerified_whenCallCreateMailTokenWithTypeIsMailConfirmation_thenShouldThrowDomainException() {
+        final var aUser = Fixture.Users.randomUser(new RoleId(IdentifierUtils.generateNewUUID()));
+        aUser.confirmEmail();
+
+        final var aEmail = aUser.getEmail().value();
+
+        final var expectedErrorMessage = "User email is already verified";
+
+        final var aInput = new CreateMailTokenInput(aEmail, MailType.EMAIL_CONFIRMATION.name());
+
+        Mockito.when(userRepository.findByEmail(aEmail)).thenReturn(Optional.of(aUser));
+
+        final var aException = Assertions.assertThrows(DomainException.class,
+                () -> this.createMailTokenUseCase.execute(aInput));
+
+        Assertions.assertEquals(expectedErrorMessage, aException.getMessage());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByEmail(aEmail);
+        Mockito.verify(mailRepository, Mockito.times(0)).findByEmail(aEmail);
+        Mockito.verify(mailRepository, Mockito.times(0)).deleteByToken(Mockito.any());
+        Mockito.verify(mailRepository, Mockito.times(0)).save(Mockito.any());
+    }
 }

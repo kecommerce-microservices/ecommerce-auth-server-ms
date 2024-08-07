@@ -92,4 +92,62 @@ class MailTokenRepositoryImplTest {
 
         Assertions.assertEquals(0, mailTokenJpaEntityRepository.count());
     }
+
+    @Test
+    void givenAnPrePersistedMail_whenCallFindByToken_thenReturnMailToken() {
+        final var aEmail = Fixture.Users.email();
+        final var aUserId = IdentifierUtils.generateNewId();
+        final var aMail = Fixture.Mails.mail(
+                aEmail,
+                aUserId,
+                MailType.EMAIL_CONFIRMATION
+        );
+
+        mailTokenJpaEntityRepository.saveAndFlush(MailTokenJpaEntity.toEntity(aMail));
+
+        Assertions.assertEquals(1, mailTokenJpaEntityRepository.count());
+
+        final var aOutput = this.mailRepositoryImpl.findByToken(aMail.getToken()).get();
+
+        Assertions.assertEquals(aMail.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aMail.getEmail(), aOutput.getEmail());
+        Assertions.assertEquals(aMail.getUserId().value(), aOutput.getUserId().value());
+        Assertions.assertEquals(aMail.getToken(), aOutput.getToken());
+        Assertions.assertEquals(aMail.getType(), aOutput.getType());
+        Assertions.assertEquals(aMail.isUsed(), aOutput.isUsed());
+        Assertions.assertEquals(aMail.getUsedAt(), aOutput.getUsedAt());
+        Assertions.assertEquals(aMail.getExpiresAt(), aOutput.getExpiresAt());
+        Assertions.assertEquals(aMail.getCreatedAt(), aOutput.getCreatedAt());
+    }
+
+    @Test
+    void givenAValidValues_whenCallUpdate_thenUpdateMailToken() {
+        final var aEmail = Fixture.Users.email();
+        final var aUserId = IdentifierUtils.generateNewId();
+        final var aMail = Fixture.Mails.mail(
+                aEmail,
+                aUserId,
+                MailType.EMAIL_CONFIRMATION
+        );
+
+        mailTokenJpaEntityRepository.saveAndFlush(MailTokenJpaEntity.toEntity(aMail));
+
+        Assertions.assertEquals(1, mailTokenJpaEntityRepository.count());
+
+        final var aMailUpdated = aMail.markAsUsed();
+
+        final var aOutput = this.mailRepositoryImpl.update(aMailUpdated);
+
+        Assertions.assertEquals(1, mailTokenJpaEntityRepository.count());
+
+        Assertions.assertEquals(aMailUpdated.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aMailUpdated.getEmail(), aOutput.getEmail());
+        Assertions.assertEquals(aMailUpdated.getUserId().value(), aOutput.getUserId().value());
+        Assertions.assertEquals(aMailUpdated.getToken(), aOutput.getToken());
+        Assertions.assertEquals(aMailUpdated.getType(), aOutput.getType());
+        Assertions.assertEquals(aMailUpdated.isUsed(), aOutput.isUsed());
+        Assertions.assertEquals(aMailUpdated.getUsedAt(), aOutput.getUsedAt());
+        Assertions.assertEquals(aMailUpdated.getExpiresAt(), aOutput.getExpiresAt());
+        Assertions.assertEquals(aMailUpdated.getCreatedAt(), aOutput.getCreatedAt());
+    }
 }

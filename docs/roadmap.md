@@ -7,7 +7,7 @@
 - [X] Adicionar o soft delete do usuário
 - [X] Adicionar o get do usuário (com token ou com id)
 - [ ] Adicionar a recuperação/troca de senha
-- [ ] Adicionar a confirmação de email
+- [X] Adicionar a confirmação de email
 - [X] Adicionar a troca de email
 - [X] Adicionar o login usando email e senha do usuário
 - [X] Adicionar o add / remove role do usuário (remove deve manter pelo menos uma role), rota de add deve ser limitada a 'manage-user-roles'

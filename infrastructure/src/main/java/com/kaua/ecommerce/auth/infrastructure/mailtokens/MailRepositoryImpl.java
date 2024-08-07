@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class MailRepositoryImpl implements MailRepository {
@@ -35,11 +36,29 @@ public class MailRepositoryImpl implements MailRepository {
     }
 
     @Override
+    public MailToken update(final MailToken mailToken) {
+        log.debug("Updating mail token: {}", mailToken);
+
+        final var mailTokenJpaEntity = MailTokenJpaEntity.toEntity(mailToken);
+        final var updatedMailTokenJpaEntity = this.mailTokenJpaEntityRepository
+                .save(mailTokenJpaEntity).toDomain();
+
+        log.info("Mail token updated: {}", updatedMailTokenJpaEntity);
+        return updatedMailTokenJpaEntity;
+    }
+
+    @Override
     public List<MailToken> findByEmail(final String email) {
         return this.mailTokenJpaEntityRepository.findByEmail(email)
                 .stream()
                 .map(MailTokenJpaEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<MailToken> findByToken(final String token) {
+        return this.mailTokenJpaEntityRepository.findByToken(token)
+                .map(MailTokenJpaEntity::toDomain);
     }
 
     @Override
