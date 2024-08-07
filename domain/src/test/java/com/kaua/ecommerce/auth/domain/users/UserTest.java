@@ -294,4 +294,17 @@ class UserTest extends UnitTest {
 
         Assertions.assertEquals(aUser.getUpdatedAt(), aUpdatedAt);
     }
+
+    @Test
+    void givenAValidUser_whenCallConfirmEmail_thenShouldMarkAsEmailConfirmed() {
+        final var aRole = new RoleId(IdentifierUtils.generateNewId());
+        final var aUser = Fixture.Users.randomUser(aRole);
+
+        final var aUpdatedAt = aUser.getUpdatedAt();
+
+        aUser.confirmEmail();
+
+        Assertions.assertTrue(aUser.isEmailVerified());
+        Assertions.assertTrue(aUser.getUpdatedAt().isAfter(aUpdatedAt));
+    }
 }
