@@ -162,4 +162,31 @@ class UserRepositoryImplTest {
         Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
         Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
     }
+
+    @Test
+    void givenAValidEmail_whenCallFindByEmail_thenReturnUser() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        final var aOutput = this.userRepositoryImpl.findByEmail(aUser.getEmail().value()).get();
+
+        Assertions.assertNotNull(aOutput);
+        Assertions.assertEquals(aUser.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aUser.getCustomerId().value(), aOutput.getCustomerId().value());
+        Assertions.assertEquals(aUser.getName().firstName(), aOutput.getName().firstName());
+        Assertions.assertEquals(aUser.getName().lastName(), aOutput.getName().lastName());
+        Assertions.assertEquals(aUser.getEmail().value(), aOutput.getEmail().value());
+        Assertions.assertEquals(aUser.getPassword().value(), aOutput.getPassword().value());
+        Assertions.assertEquals(aUser.isDeleted(), aOutput.isDeleted());
+        Assertions.assertEquals(aUser.isEmailVerified(), aOutput.isEmailVerified());
+        Assertions.assertEquals(aUser.getCreatedAt(), aOutput.getCreatedAt());
+        Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
+        Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
+    }
 }

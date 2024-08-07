@@ -50,6 +50,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByEmail(final String email) {
+        return this.userJpaEntityRepository.findByEmail(email)
+                .map(UserJpaEntity::toDomain);
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return this.userJpaEntityRepository.existsByEmail(email);
     }
