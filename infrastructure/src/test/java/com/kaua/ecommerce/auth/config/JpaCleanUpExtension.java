@@ -1,5 +1,6 @@
 package com.kaua.ecommerce.auth.config;
 
+import com.kaua.ecommerce.auth.infrastructure.mailtokens.persistence.MailTokenJpaEntityRepository;
 import com.kaua.ecommerce.auth.infrastructure.oauth2.clients.persistence.ClientJpaEntityRepository;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntityRepository;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntityRepository;
@@ -20,7 +21,8 @@ public class JpaCleanUpExtension implements BeforeEachCallback {
         cleanUp(List.of(
                 appContext.getBean(UserJpaEntityRepository.class),
                 appContext.getBean(RoleJpaEntityRepository.class),
-                appContext.getBean(ClientJpaEntityRepository.class)
+                appContext.getBean(ClientJpaEntityRepository.class),
+                appContext.getBean(MailTokenJpaEntityRepository.class)
         ));
     }
 
