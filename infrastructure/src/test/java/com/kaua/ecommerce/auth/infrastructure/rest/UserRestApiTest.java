@@ -11,6 +11,7 @@ import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import com.kaua.ecommerce.auth.infrastructure.ApiTest;
 import com.kaua.ecommerce.auth.infrastructure.ControllerTest;
 import com.kaua.ecommerce.auth.infrastructure.rest.controllers.UserRestController;
+import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
 import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -64,6 +65,9 @@ class UserRestApiTest {
 
     @MockBean
     private GetUserByIdUseCase getUserByIdUseCase;
+
+    @MockBean
+    private ConfirmUserEmailUseCase confirmUserEmailUseCase;
 
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
@@ -478,5 +482,31 @@ class UserRestApiTest {
                 .andExpect(jsonPath("$.deleted_at").value(aUser.getDeletedAt().orElse(null)));
 
         Mockito.verify(getUserByIdUseCase, Mockito.times(1)).execute(Mockito.any());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallConfirmUserEmail_thenReturnUserId() throws Exception {
+        final var aToken = IdentifierUtils.generateNewIdWithoutHyphen();
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.when(confirmUserEmailUseCase.execute(any()))
+                .thenAnswer(call -> new ConfirmUserEmailOutput(aExpectedUserId));
+
+        final var aRequest = MockMvcRequestBuilders
+                .patch("/v1/users/email-confirm/{token}", aToken)
+                .with(ApiTest.admin(aExpectedUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
+
+        Mockito.verify(confirmUserEmailUseCase, Mockito.times(1)).execute(Mockito.any());
     }
 }
