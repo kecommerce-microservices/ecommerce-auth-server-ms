@@ -176,9 +176,10 @@ class MailTokenTest extends UnitTest {
                 aExpiresAt
         );
 
-        aMailToken.markAsUsed();
+        final var aOutput = aMailToken.markAsUsed();
 
         Assertions.assertTrue(aMailToken.isUsed());
         Assertions.assertTrue(aMailToken.getUsedAt().isPresent());
+        Assertions.assertEquals(aOutput, aMailToken);
     }
 }

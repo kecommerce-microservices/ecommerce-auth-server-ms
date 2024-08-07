@@ -72,9 +72,10 @@ public class MailToken extends AggregateRoot<MailId> {
         return InstantUtils.now().isAfter(this.expiresAt);
     }
 
-    public void markAsUsed() {
+    public MailToken markAsUsed() {
         this.setUsed(true);
         this.setUsedAt(InstantUtils.now());
+        return this;
     }
 
     public static MailToken with(
