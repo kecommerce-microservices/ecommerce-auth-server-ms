@@ -1,14 +1,18 @@
 package com.kaua.ecommerce.auth.domain;
 
+import com.kaua.ecommerce.auth.domain.mailtokens.MailToken;
+import com.kaua.ecommerce.auth.domain.mailtokens.MailType;
 import com.kaua.ecommerce.auth.domain.roles.Role;
 import com.kaua.ecommerce.auth.domain.roles.RoleDescription;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.auth.domain.roles.RoleName;
 import com.kaua.ecommerce.auth.domain.users.*;
 import com.kaua.ecommerce.lib.domain.utils.IdentifierUtils;
+import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import com.kaua.ecommerce.lib.domain.utils.RandomStringUtils;
 import net.datafaker.Faker;
 
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,7 +20,22 @@ public final class Fixture {
 
     private static final Faker faker = new Faker();
 
-    private Fixture() {}
+    private Fixture() {
+    }
+
+    public static final class Mails {
+        private Mails() {}
+
+        public static MailToken mail(final String aEmail, final String aUserId, final MailType aType) {
+            return MailToken.newMailToken(
+                    aEmail,
+                    new UserId(aUserId),
+                    IdentifierUtils.generateNewIdWithoutHyphen(),
+                    aType,
+                    InstantUtils.now().plus(3, ChronoUnit.DAYS)
+            );
+        }
+    }
 
     public static final class Users {
 
