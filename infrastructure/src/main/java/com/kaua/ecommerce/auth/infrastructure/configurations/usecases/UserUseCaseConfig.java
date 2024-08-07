@@ -2,6 +2,7 @@ package com.kaua.ecommerce.auth.infrastructure.configurations.usecases;
 
 import com.kaua.ecommerce.auth.application.gateways.CryptographyGateway;
 import com.kaua.ecommerce.auth.application.gateways.MfaGateway;
+import com.kaua.ecommerce.auth.application.repositories.MailRepository;
 import com.kaua.ecommerce.auth.application.repositories.RoleRepository;
 import com.kaua.ecommerce.auth.application.repositories.UserRepository;
 import com.kaua.ecommerce.auth.application.usecases.users.*;
@@ -18,17 +19,20 @@ public class UserUseCaseConfig {
     private final CryptographyGateway cryptographyGateway;
     private final RoleRepository roleRepository;
     private final MfaGateway mfaGateway;
+    private final MailRepository mailRepository;
 
     public UserUseCaseConfig(
             final UserRepository userRepository,
             final CryptographyGateway cryptographyGateway,
             final RoleRepository roleRepository,
-            final MfaGateway mfaGateway
+            final MfaGateway mfaGateway,
+            final MailRepository mailRepository
     ) {
         this.userRepository = Objects.requireNonNull(userRepository);
         this.cryptographyGateway = Objects.requireNonNull(cryptographyGateway);
         this.roleRepository = Objects.requireNonNull(roleRepository);
         this.mfaGateway = Objects.requireNonNull(mfaGateway);
+        this.mailRepository = Objects.requireNonNull(mailRepository);
     }
 
     @Bean
@@ -74,5 +78,10 @@ public class UserUseCaseConfig {
     @Bean
     public GetUserByIdUseCase getUserByIdUseCase() {
         return new DefaultGetUserByIdUseCase(userRepository, roleRepository);
+    }
+
+    @Bean
+    public CreateMailTokenUseCase createMailTokenUseCase() {
+        return new DefaultCreateMailTokenUseCase(mailRepository, userRepository);
     }
 }
