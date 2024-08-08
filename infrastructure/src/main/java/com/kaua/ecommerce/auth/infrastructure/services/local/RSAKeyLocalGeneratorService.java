@@ -125,7 +125,11 @@ public class RSAKeyLocalGeneratorService implements KeysService {
     }
 
     @Override
-    public KeyPair getKeyPair(final String publicKeyName, final String privateKeyName) {
+    public KeyPair getKeyPairOrGenerate(final String publicKeyName, final String privateKeyName) {
+        if (!keysExists(publicKeyName, privateKeyName)) {
+            generateAndSaveKeys(publicKeyName, privateKeyName);
+            return new KeyPair(getPublicKey(publicKeyName), getPrivateKey(privateKeyName));
+        }
         return new KeyPair(getPublicKey(publicKeyName), getPrivateKey(privateKeyName));
     }
 
@@ -143,7 +147,8 @@ public class RSAKeyLocalGeneratorService implements KeysService {
         return keyPair;
     }
 
-    private boolean keysExists(
+    @Override
+    public boolean keysExists(
             final String publicKeyName,
             final String privateKeyName
     ) {
@@ -151,7 +156,7 @@ public class RSAKeyLocalGeneratorService implements KeysService {
         final File privateKeyFile = new File(KEYS_FOLDER, privateKeyName);
 
         if (publicKeyFile.exists() && privateKeyFile.exists()) {
-            log.info("RSA keys already exists");
+            log.info("RSA keys [public:{}] [private:{}] already exists", publicKeyName, privateKeyName);
             return true;
         }
 
