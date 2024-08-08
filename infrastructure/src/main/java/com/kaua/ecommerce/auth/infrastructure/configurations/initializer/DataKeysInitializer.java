@@ -29,5 +29,9 @@ public class DataKeysInitializer implements CommandLineRunner {
                 Constants.MFA_PUBLIC_KEY,
                 Constants.MFA_PRIVATE_KEY
         );
+        this.keysService.generateAndSaveKeys(
+                Constants.JWT_PUBLIC_KEY,
+                Constants.JWT_PRIVATE_KEY
+        );
     }
 }

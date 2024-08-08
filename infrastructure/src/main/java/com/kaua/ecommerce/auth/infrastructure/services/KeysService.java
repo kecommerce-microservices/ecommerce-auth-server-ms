@@ -16,5 +16,7 @@ public interface KeysService {
 
     PrivateKey getPrivateKey(String privateKeyName);
 
-    KeyPair getKeyPair(String publicKeyName, String privateKeyName);
+    KeyPair getKeyPairOrGenerate(String publicKeyName, String privateKeyName);
+
+    boolean keysExists(String publicKeyName, String privateKeyName);
 }
