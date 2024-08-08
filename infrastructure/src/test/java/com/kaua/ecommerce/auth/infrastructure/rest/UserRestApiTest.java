@@ -69,6 +69,9 @@ class UserRestApiTest {
     @MockBean
     private ConfirmUserEmailUseCase confirmUserEmailUseCase;
 
+    @MockBean
+    private ChangeUserPasswordUseCase changeUserPasswordUseCase;
+
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
 
@@ -508,5 +511,39 @@ class UserRestApiTest {
                 .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
 
         Mockito.verify(confirmUserEmailUseCase, Mockito.times(1)).execute(Mockito.any());
+    }
+
+    @Test
+    void givenAValidRequest_whenCallChangeUserPassword_thenReturnUserId() throws Exception {
+        final var aToken = IdentifierUtils.generateNewIdWithoutHyphen();
+        final var aNewPassword = "123456Abc*";
+        final var aExpectedUserId = UUID.randomUUID().toString();
+
+        Mockito.when(changeUserPasswordUseCase.execute(any()))
+                .thenAnswer(call -> new ChangeUserPasswordOutput(aExpectedUserId));
+
+        var json = """
+                {
+                    "password": "%s"
+                }
+                """.formatted(aNewPassword);
+
+        final var aRequest = MockMvcRequestBuilders
+                .patch("/v1/users/password-change/{token}", aToken)
+                .with(ApiTest.admin(aExpectedUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(json);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
+
+        Mockito.verify(changeUserPasswordUseCase, Mockito.times(1)).execute(Mockito.any());
     }
 }

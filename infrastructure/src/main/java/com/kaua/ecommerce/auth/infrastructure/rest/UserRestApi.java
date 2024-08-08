@@ -122,6 +122,24 @@ public interface UserRestApi {
     })
     ResponseEntity<ConfirmUserEmailOutput> confirmEmail(@PathVariable("token") final String token);
 
+    @PatchMapping(
+            value = "/password-change/{token}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Change user password")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password changed successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "404", description = "User or token not found"),
+            @ApiResponse(responseCode = "422", description = "A validation error was observed"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    ResponseEntity<ChangeUserPasswordOutput> changePassword(
+            @PathVariable("token") final String token,
+            @RequestBody ChangeUserPasswordRequest request
+    );
+
     @DeleteMapping()
     @Operation(summary = "Soft delete authenticated user")
     @ApiResponses(value = {

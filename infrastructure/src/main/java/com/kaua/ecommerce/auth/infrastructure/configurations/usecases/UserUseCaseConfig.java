@@ -89,4 +89,9 @@ public class UserUseCaseConfig {
     public ConfirmUserEmailUseCase confirmUserEmailUseCase() {
         return new DefaultConfirmUserEmailUseCase(userRepository, mailRepository);
     }
+
+    @Bean
+    public ChangeUserPasswordUseCase changeUserPasswordUseCase() {
+        return new DefaultChangeUserPasswordUseCase(userRepository, mailRepository, cryptographyGateway);
+    }
 }
