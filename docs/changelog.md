@@ -17,6 +17,7 @@
 - [X] Adicionado o get por id ou token do usuário
 - [X] Adicionado a confirmação de email do usuário
 - [X] Adicionado a recuperação de senha do usuário
+- [X] Adicionado as chaves RSA para o jwt
 
 # 0.1.0
 - [X] Adicionado o arquivo de changelog

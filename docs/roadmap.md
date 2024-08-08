@@ -1,7 +1,7 @@
 - [X] Adicionar o user details para carregar o usuário
 - [X] Adicionar a customização do token para carregar as roles
 - [X] Adicionar a implementação do granType password
-- [ ] Adicionar a criação das chaves RSA
+- [X] Adicionar a criação das chaves RSA
 - [X] Adicionar as entidades e tabelas do auth server e talvez a criação dinâmica dos clients oauth2
 - [X] Adicionar a atualização do usuário
 - [X] Adicionar o soft delete do usuário
