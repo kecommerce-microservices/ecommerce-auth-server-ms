@@ -35,6 +35,7 @@ public class UserRestController implements UserRestApi {
     private final RemoveUserRoleUseCase removeUserRoleUseCase;
     private final GetUserByIdUseCase getUserByIdUseCase;
     private final ConfirmUserEmailUseCase confirmUserEmailUseCase;
+    private final ChangeUserPasswordUseCase changeUserPasswordUseCase;
 
     public UserRestController(
             final CreateUserUseCase createUserUseCase,
@@ -46,7 +47,8 @@ public class UserRestController implements UserRestApi {
             final AddRolesToUserUseCase addRolesToUserUseCase,
             final RemoveUserRoleUseCase removeUserRoleUseCase,
             final GetUserByIdUseCase getUserByIdUseCase,
-            final ConfirmUserEmailUseCase confirmUserEmailUseCase
+            final ConfirmUserEmailUseCase confirmUserEmailUseCase,
+            final ChangeUserPasswordUseCase changeUserPasswordUseCase
     ) {
         this.createUserUseCase = Objects.requireNonNull(createUserUseCase);
         this.createUserMfaUseCase = Objects.requireNonNull(createUserMfaUseCase);
@@ -58,6 +60,7 @@ public class UserRestController implements UserRestApi {
         this.removeUserRoleUseCase = Objects.requireNonNull(removeUserRoleUseCase);
         this.getUserByIdUseCase = Objects.requireNonNull(getUserByIdUseCase);
         this.confirmUserEmailUseCase = Objects.requireNonNull(confirmUserEmailUseCase);
+        this.changeUserPasswordUseCase = Objects.requireNonNull(changeUserPasswordUseCase);
     }
 
     @Override
@@ -176,6 +179,25 @@ public class UserRestController implements UserRestApi {
         final var aOutput = this.confirmUserEmailUseCase.execute(aInput);
 
         log.info("User email confirmed successfully: {}", aOutput);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(aOutput);
+    }
+
+    @Override
+    public ResponseEntity<ChangeUserPasswordOutput> changePassword(
+            final String token,
+            final ChangeUserPasswordRequest request
+    ) {
+        log.debug("Received request to change user password token: {}", token);
+
+        final var aInput = new ChangeUserPasswordInput(
+                token,
+                request.password()
+        );
+
+        final var aOutput = this.changeUserPasswordUseCase.execute(aInput);
+
+        log.info("User password changed successfully: {}", aOutput);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(aOutput);
     }
