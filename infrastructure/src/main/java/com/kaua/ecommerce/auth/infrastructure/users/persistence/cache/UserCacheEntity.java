@@ -3,6 +3,7 @@ package com.kaua.ecommerce.auth.infrastructure.users.persistence.cache;
 import com.kaua.ecommerce.auth.domain.roles.RoleId;
 import com.kaua.ecommerce.auth.domain.users.*;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
+import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserMfaJpaEntity;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -23,7 +24,7 @@ public class UserCacheEntity implements Serializable {
     private Set<UUID> roles;
     private boolean isDeleted;
     private boolean emailVerified;
-    private UserMfaCacheEntity mfa;
+    private UserMfaJpaEntity mfa;
     private Instant createdAt;
     private Instant updatedAt;
     private Instant deletedAt;
@@ -42,7 +43,7 @@ public class UserCacheEntity implements Serializable {
             final Set<UUID> roles,
             final boolean isDeleted,
             final boolean emailVerified,
-            final UserMfaCacheEntity mfa,
+            final UserMfaJpaEntity mfa,
             final Instant createdAt,
             final Instant updatedAt,
             final Instant deletedAt
@@ -78,7 +79,7 @@ public class UserCacheEntity implements Serializable {
                         .collect(Collectors.toSet()),
                 aEntity.isDeleted(),
                 aEntity.isEmailVerified(),
-                UserMfaCacheEntity.toEntity(aEntity.getMfa()),
+                aEntity.getMfa(),
                 aEntity.getCreatedAt(),
                 aEntity.getUpdatedAt(),
                 aEntity.getDeletedAt()
@@ -144,7 +145,7 @@ public class UserCacheEntity implements Serializable {
         return emailVerified;
     }
 
-    public UserMfaCacheEntity getMfa() {
+    public UserMfaJpaEntity getMfa() {
         return mfa;
     }
 
