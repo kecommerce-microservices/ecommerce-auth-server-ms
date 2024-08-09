@@ -1,3 +1,6 @@
+# 0.3.*
+- [X] Adicionado o cache do usuário
+
 # 0.2.0
 - [X] Adicionado a criação do usuário
 - [X] Adicionado a configuração base do auth server
