@@ -2,6 +2,7 @@ package com.kaua.ecommerce.auth.infrastructure.users;
 
 import com.kaua.ecommerce.auth.domain.Fixture;
 import com.kaua.ecommerce.auth.domain.users.*;
+import com.kaua.ecommerce.auth.infrastructure.AbstractCacheTest;
 import com.kaua.ecommerce.auth.infrastructure.DatabaseRepositoryTest;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.roles.persistence.RoleJpaEntityRepository;
@@ -12,12 +13,13 @@ import com.kaua.ecommerce.lib.domain.utils.InstantUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
 @DatabaseRepositoryTest
-class UserRepositoryImplTest {
+class UserRepositoryImplTest extends AbstractCacheTest {
 
     @Autowired
     private UserRepositoryImpl userRepositoryImpl;
@@ -27,6 +29,9 @@ class UserRepositoryImplTest {
 
     @Autowired
     private RoleJpaEntityRepository roleJpaEntityRepository;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @Test
     void givenAValidValues_whenCallSaveUser_thenUserIsSaved() {
@@ -173,6 +178,95 @@ class UserRepositoryImplTest {
         this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
 
         Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        final var aOutput = this.userRepositoryImpl.findByEmail(aUser.getEmail().value()).get();
+
+        Assertions.assertNotNull(aOutput);
+        Assertions.assertEquals(aUser.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aUser.getCustomerId().value(), aOutput.getCustomerId().value());
+        Assertions.assertEquals(aUser.getName().firstName(), aOutput.getName().firstName());
+        Assertions.assertEquals(aUser.getName().lastName(), aOutput.getName().lastName());
+        Assertions.assertEquals(aUser.getEmail().value(), aOutput.getEmail().value());
+        Assertions.assertEquals(aUser.getPassword().value(), aOutput.getPassword().value());
+        Assertions.assertEquals(aUser.isDeleted(), aOutput.isDeleted());
+        Assertions.assertEquals(aUser.isEmailVerified(), aOutput.isEmailVerified());
+        Assertions.assertEquals(aUser.getCreatedAt(), aOutput.getCreatedAt());
+        Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
+        Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
+    }
+
+    @Test
+    void givenAValidUserIdButExistsInCache_whenCallFindById_thenReturnUser() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        this.userRepositoryImpl.findById(aUser.getId().value());
+
+        final var aOutput = this.userRepositoryImpl.findById(aUser.getId().value()).get();
+
+        Assertions.assertNotNull(aOutput);
+        Assertions.assertEquals(aUser.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aUser.getCustomerId().value(), aOutput.getCustomerId().value());
+        Assertions.assertEquals(aUser.getName().firstName(), aOutput.getName().firstName());
+        Assertions.assertEquals(aUser.getName().lastName(), aOutput.getName().lastName());
+        Assertions.assertEquals(aUser.getEmail().value(), aOutput.getEmail().value());
+        Assertions.assertEquals(aUser.getPassword().value(), aOutput.getPassword().value());
+        Assertions.assertEquals(aUser.isDeleted(), aOutput.isDeleted());
+        Assertions.assertEquals(aUser.isEmailVerified(), aOutput.isEmailVerified());
+        Assertions.assertEquals(aUser.getCreatedAt(), aOutput.getCreatedAt());
+        Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
+        Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
+    }
+
+    @Test
+    void givenAValidEmailButExistsInCache_whenCallFindByEmail_thenReturnUser() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        this.userRepositoryImpl.findByEmail(aUser.getEmail().value());
+
+        final var aOutput = this.userRepositoryImpl.findByEmail(aUser.getEmail().value()).get();
+
+        Assertions.assertNotNull(aOutput);
+        Assertions.assertEquals(aUser.getId().value(), aOutput.getId().value());
+        Assertions.assertEquals(aUser.getCustomerId().value(), aOutput.getCustomerId().value());
+        Assertions.assertEquals(aUser.getName().firstName(), aOutput.getName().firstName());
+        Assertions.assertEquals(aUser.getName().lastName(), aOutput.getName().lastName());
+        Assertions.assertEquals(aUser.getEmail().value(), aOutput.getEmail().value());
+        Assertions.assertEquals(aUser.getPassword().value(), aOutput.getPassword().value());
+        Assertions.assertEquals(aUser.isDeleted(), aOutput.isDeleted());
+        Assertions.assertEquals(aUser.isEmailVerified(), aOutput.isEmailVerified());
+        Assertions.assertEquals(aUser.getCreatedAt(), aOutput.getCreatedAt());
+        Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
+        Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
+    }
+
+    @Test
+    void givenAValidEmailButIdNotExistsInCache_whenCallFindByEmail_thenReturnEmpty() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        this.userRepositoryImpl.findByEmail(aUser.getEmail().value());
+
+        this.redisTemplate.delete("users:".concat(aUser.getId().value().toString()));
 
         final var aOutput = this.userRepositoryImpl.findByEmail(aUser.getEmail().value()).get();
 

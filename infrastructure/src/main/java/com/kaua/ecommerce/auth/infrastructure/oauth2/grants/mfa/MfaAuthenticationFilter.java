@@ -29,6 +29,8 @@ public class MfaAuthenticationFilter extends OncePerRequestFilter {
     private static final String MFA_CONFIRM_URI = "/mfa/device/confirm";
     private static final String MFA_VERIFY_URI = "/mfa/verify";
 
+    private static final String MFA_AUTH_HEADER_NAME = "WWW-Authenticate";
+    private static final String MFA_HEADER_NAME = "OTP";
     private static final String MFA_ERROR_OTP = "MFA-ERROR-OTP";
     private static final String NO_OTP_CODE = "NO-OTP-CODE";
     private static final String DEVICE_NOT_VERIFIED = "DEVICE-NOT-VERIFIED";
@@ -109,7 +111,7 @@ public class MfaAuthenticationFilter extends OncePerRequestFilter {
             if (!aUserMfa.isDeviceVerified() && !request.getRequestURI().contains(MFA_CONFIRM_URI)) {
                 log.debug("MFA Authentication Filter - MFA device not verified, redirecting to MFA device confirmation");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setHeader("WWW-Authenticate", "OTP");
+                response.setHeader(MFA_AUTH_HEADER_NAME, MFA_HEADER_NAME);
                 response.setHeader(MFA_ERROR_OTP, DEVICE_NOT_VERIFIED);
                 return;
             }
@@ -117,7 +119,7 @@ public class MfaAuthenticationFilter extends OncePerRequestFilter {
             if (aUserMfa.isDeviceVerified() && !request.getRequestURI().contains(MFA_VERIFY_URI)) {
                 log.debug("MFA Authentication Filter - MFA not verified, redirecting to MFA verification");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setHeader("WWW-Authenticate", "OTP");
+                response.setHeader(MFA_AUTH_HEADER_NAME, MFA_HEADER_NAME);
                 response.setHeader(MFA_ERROR_OTP, MFA_NOT_VERIFIED);
                 return;
             }
@@ -127,7 +129,7 @@ public class MfaAuthenticationFilter extends OncePerRequestFilter {
             if (aOtp == null) {
                 log.debug("MFA Authentication Filter - No OTP code provided");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setHeader("WWW-Authenticate", "OTP");
+                response.setHeader(MFA_AUTH_HEADER_NAME, MFA_HEADER_NAME);
                 response.setHeader(MFA_ERROR_OTP, NO_OTP_CODE);
                 return;
             }
