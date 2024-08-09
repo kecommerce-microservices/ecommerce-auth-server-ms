@@ -5,6 +5,7 @@ import com.kaua.ecommerce.auth.domain.users.*;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserJpaEntity;
 import com.kaua.ecommerce.auth.infrastructure.users.persistence.UserMfaJpaEntity;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Optional;
@@ -13,6 +14,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class UserCacheEntity implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 7550292603141255995L;
 
     private UUID id;
     private long version;

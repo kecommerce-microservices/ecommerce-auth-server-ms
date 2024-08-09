@@ -5,13 +5,18 @@ import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaId;
 import com.kaua.ecommerce.auth.domain.users.mfas.UserMfaType;
 import jakarta.persistence.*;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users_mfa")
-public class UserMfaJpaEntity {
+public class UserMfaJpaEntity implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = -1898194096121401320L;
 
     @Id
     private UUID id;
@@ -106,76 +111,76 @@ public class UserMfaJpaEntity {
         return id;
     }
 
-    public boolean isMfaEnabled() {
-        return mfaEnabledEntity;
-    }
-
-    public boolean isMfaVerified() {
-        return mfaVerifiedEntity;
-    }
-
-    public Optional<String> getMfaSecret() {
-        return Optional.ofNullable(mfaSecretEntity);
-    }
-
-    public Optional<String> getDeviceName() {
-        return Optional.ofNullable(deviceNameEntity);
-    }
-
-    public boolean isDeviceVerified() {
-        return deviceVerifiedEntity;
-    }
-
-    public Optional<UserMfaType> getMfaType() {
-        return Optional.ofNullable(mfaTypeEntity);
-    }
-
-    public Instant getCreatedAt() {
-        return createdAtEntity;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAtEntity;
-    }
-
-    public Optional<Instant> getValidUntil() {
-        return Optional.ofNullable(validUntilEntity);
-    }
-
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public boolean isMfaEnabled() {
+        return mfaEnabledEntity;
     }
 
     public void setMfaEnabled(boolean mfaEnabled) {
         this.mfaEnabledEntity = mfaEnabled;
     }
 
+    public boolean isMfaVerified() {
+        return mfaVerifiedEntity;
+    }
+
     public void setMfaVerified(boolean mfaVerified) {
         this.mfaVerifiedEntity = mfaVerified;
+    }
+
+    public Optional<String> getMfaSecret() {
+        return Optional.ofNullable(mfaSecretEntity);
     }
 
     public void setMfaSecret(String mfaSecret) {
         this.mfaSecretEntity = mfaSecret;
     }
 
+    public Optional<String> getDeviceName() {
+        return Optional.ofNullable(deviceNameEntity);
+    }
+
     public void setDeviceName(String deviceName) {
         this.deviceNameEntity = deviceName;
+    }
+
+    public boolean isDeviceVerified() {
+        return deviceVerifiedEntity;
     }
 
     public void setDeviceVerified(boolean deviceVerified) {
         this.deviceVerifiedEntity = deviceVerified;
     }
 
+    public Optional<UserMfaType> getMfaType() {
+        return Optional.ofNullable(mfaTypeEntity);
+    }
+
     public void setMfaType(UserMfaType mfaType) {
         this.mfaTypeEntity = mfaType;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAtEntity;
     }
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAtEntity = createdAt;
     }
 
+    public Instant getUpdatedAt() {
+        return updatedAtEntity;
+    }
+
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAtEntity = updatedAt;
+    }
+
+    public Optional<Instant> getValidUntil() {
+        return Optional.ofNullable(validUntilEntity);
     }
 
     public void setValidUntil(Instant validUntil) {
