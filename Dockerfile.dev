@@ -1,0 +1,21 @@
+FROM gradle:7.6.1-jdk17-alpine AS builder
+
+WORKDIR /usr/app
+
+ARG GB_USERNAME
+ARG PERSONAL_TOKEN
+
+ENV GB_USERNAME=${GB_USERNAME}
+ENV PERSONAL_TOKEN=${PERSONAL_TOKEN}
+
+COPY . .
+
+RUN gradle clean build -x test
+
+FROM eclipse-temurin:17.0.5_8-jre-alpine
+
+WORKDIR /opt/app
+
+COPY --from=builder /usr/app/build/libs/*.jar /opt/app/application.jar
+
+CMD ["java", "-jar", "/opt/app/application.jar"]
