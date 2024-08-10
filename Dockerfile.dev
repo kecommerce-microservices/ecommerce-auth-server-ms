@@ -14,8 +14,17 @@ RUN gradle clean build -x test
 
 FROM eclipse-temurin:17.0.5_8-jre-alpine
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 WORKDIR /opt/app
 
 COPY --from=builder /usr/app/build/libs/*.jar /opt/app/application.jar
+
+RUN chown -R appuser:appgroup /opt/app
+RUN chmod -R 775 /opt/app
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --spider -q http://localhost:8080/api/actuator/health || exit 1
 
 CMD ["java", "-jar", "/opt/app/application.jar"]
