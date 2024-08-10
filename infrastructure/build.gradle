@@ -9,6 +9,11 @@ plugins {
 
 group = 'com.kaua.ecommerce.auth.infrastructure'
 
+bootJar {
+    archiveFileName = 'auth-server-ms.jar'
+    destinationDirectory.set(file("${rootProject.layout.buildDirectory.get()}/libs"))
+}
+
 repositories {
     mavenCentral()
 }
