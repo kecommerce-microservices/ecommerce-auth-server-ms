@@ -38,3 +38,9 @@ jacocoTestCoverageVerification {
         }
     }
 }
+
+tasks.register("showVersion") {
+    doLast {
+        println project.version
+    }
+}
