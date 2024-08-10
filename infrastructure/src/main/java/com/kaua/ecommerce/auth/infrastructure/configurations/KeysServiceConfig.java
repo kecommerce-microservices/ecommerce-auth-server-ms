@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 public class KeysServiceConfig {
 
     @Bean
-    @Profile({"development", "test-integration"})
+    @Profile({"development", "test-integration", "sandbox"})
     public KeysService rsaKeyLocalGeneratorService() {
         return new RSAKeyLocalGeneratorService();
     }

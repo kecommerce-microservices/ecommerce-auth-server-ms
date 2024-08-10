@@ -66,6 +66,6 @@ usando oauth2.
 
 - Rode o projeto e o docker-compose
 ```bash
-docker-compose -f docker-compose-dev.yml up -d
+docker-compose -f sandbox/app/docker-compose.yml --profile=all up -d
 ./gradlew bootRun
 ```

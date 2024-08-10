@@ -1,0 +1,53 @@
+version: '3.7'
+
+services:
+  app:
+    container_name: ecommerce-auth-server-ms-app
+    build:
+      context: ../../
+      dockerfile: Dockerfile.dev
+      args:
+        - GB_USERNAME=${GB_USERNAME}
+        - PERSONAL_TOKEN=${PERSONAL_TOKEN}
+    restart: unless-stopped
+    profiles: ["app"]
+    env_file:
+      - .env.local
+    ports:
+      - "8080:8080"
+    networks:
+      - ecommerce-auth-server-ms-network
+      - ecommerce-network
+    volumes:
+      - ../.docker/app:/opt/app/keys:rw
+
+  postgres:
+    container_name: ecommerce-auth-server-ms-postgres
+    image: postgres:latest
+    restart: on-failure
+    profiles: ["all"]
+    environment:
+      - POSTGRES_DB=auth-server-ms
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_ROOT_HOST=%
+    ports:
+      - "5433:5432"
+    networks:
+      - ecommerce-auth-server-ms-network
+    volumes:
+      - ../.docker/postgres:/var/lib/postgresql/data:rw
+
+  redis:
+    container_name: ecommerce-auth-server-ms-redis
+    image: redis:latest
+    restart: on-failure
+    profiles: ["all"]
+    ports:
+      - "6379:6379"
+    networks:
+      - ecommerce-auth-server-ms-network
+
+networks:
+  ecommerce-auth-server-ms-network:
+  ecommerce-network:
+    external: true

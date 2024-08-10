@@ -16,7 +16,6 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -115,6 +114,7 @@ public class AuthorizationServerConfig {
                         BasicAuthenticationFilter.class
                 )
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/assets/**", "/webjars/**", "/css/**", "/login", "/error").permitAll()
                         .requestMatchers("/v1/roles/**").hasAnyAuthority("manage-roles", "*")
                         .requestMatchers("/v1/users/add-roles", "/v1/users/remove-role").hasAnyAuthority("manage-users-roles", "*")
