@@ -72,6 +72,9 @@ class UserRestApiTest {
     @MockBean
     private ChangeUserPasswordUseCase changeUserPasswordUseCase;
 
+    @MockBean
+    private DeleteUserUseCase deleteUserUseCase;
+
     @Captor
     private ArgumentCaptor<CreateUserInput> createUserInputCaptor;
 
@@ -545,5 +548,26 @@ class UserRestApiTest {
                 .andExpect(jsonPath("$.user_id").value(aExpectedUserId));
 
         Mockito.verify(changeUserPasswordUseCase, Mockito.times(1)).execute(Mockito.any());
+    }
+
+    @Test
+    void givenAValidUserId_whenCallDeleteById_thenReturnOk() throws Exception {
+        final var aUserId = UUID.randomUUID().toString();
+
+        Mockito.doNothing().when(deleteUserUseCase).execute(any());
+
+        final var aRequest = MockMvcRequestBuilders.delete("/v1/users/delete/{id}", aUserId)
+                .with(ApiTest.admin(aUserId))
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE);
+
+        final var aResponse = this.mvc.perform(aRequest);
+
+        aResponse
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk());
+
+        Mockito.verify(deleteUserUseCase, Mockito.times(1)).execute(Mockito.any());
     }
 }

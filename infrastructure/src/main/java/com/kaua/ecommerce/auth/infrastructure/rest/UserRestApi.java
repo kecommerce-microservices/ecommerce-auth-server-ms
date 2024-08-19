@@ -150,6 +150,16 @@ public interface UserRestApi {
     @ResponseStatus(HttpStatus.OK)
     void softDeleteUser(@AuthenticationPrincipal final UserDetailsImpl principal);
 
+    @DeleteMapping(value = "/delete/{id}")
+    @Operation(summary = "Delete user by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "500", description = "An unexpected error occurred")
+    })
+    @ResponseStatus(HttpStatus.OK)
+    void deleteUserById(@PathVariable("id") final String id);
+
     @PostMapping(
             value = "/mfa",
             consumes = MediaType.APPLICATION_JSON_VALUE,

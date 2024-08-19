@@ -283,4 +283,57 @@ class UserRepositoryImplTest extends AbstractCacheTest {
         Assertions.assertEquals(aUser.getUpdatedAt(), aOutput.getUpdatedAt());
         Assertions.assertTrue(aOutput.getDeletedAt().isEmpty());
     }
+
+    @Test
+    void givenAValidUserIdButNotExistsInCache_whenCallDeleteById_thenUserIsDeleted() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        this.userRepositoryImpl.deleteByUserId(aUser.getId().value());
+
+        Assertions.assertEquals(0, this.userJpaEntityRepository.count());
+        Assertions.assertEquals(1, this.roleJpaEntityRepository.count());
+    }
+
+    @Test
+    void givenAValidUserIdButExistsInCache_whenCallDeleteById_thenUserIsDeleted() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        this.userRepositoryImpl.findById(aUser.getId().value());
+
+        this.userRepositoryImpl.deleteByUserId(aUser.getId().value());
+
+        Assertions.assertEquals(0, this.userJpaEntityRepository.count());
+        Assertions.assertEquals(1, this.roleJpaEntityRepository.count());
+    }
+
+    @Test
+    void givenAnInvalidUserId_whenCallDeleteById_thenUserIsNotDeleted() {
+        final var aDefaultRole = Fixture.Roles.defaultRole();
+        this.roleJpaEntityRepository.saveAndFlush(RoleJpaEntity.toEntity(aDefaultRole));
+
+        final var aUser = Fixture.Users.randomUser(aDefaultRole.getId());
+
+        this.userJpaEntityRepository.saveAndFlush(UserJpaEntity.toEntity(aUser));
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+
+        this.userRepositoryImpl.deleteByUserId(IdentifierUtils.generateNewUUID());
+
+        Assertions.assertEquals(1, this.userJpaEntityRepository.count());
+        Assertions.assertEquals(1, this.roleJpaEntityRepository.count());
+    }
 }
