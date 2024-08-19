@@ -94,4 +94,9 @@ public class UserUseCaseConfig {
     public ChangeUserPasswordUseCase changeUserPasswordUseCase() {
         return new DefaultChangeUserPasswordUseCase(userRepository, mailRepository, cryptographyGateway);
     }
+
+    @Bean
+    public DeleteUserUseCase deleteUserUseCase() {
+        return new DefaultDeleteUserUseCase(userRepository);
+    }
 }
