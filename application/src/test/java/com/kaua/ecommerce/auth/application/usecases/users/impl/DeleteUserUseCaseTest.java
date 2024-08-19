@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-public class DeleteUserUseCaseTest extends UseCaseTest {
+class DeleteUserUseCaseTest extends UseCaseTest {
 
     @Mock
     private UserRepository userRepository;
