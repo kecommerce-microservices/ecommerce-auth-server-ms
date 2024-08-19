@@ -145,10 +145,12 @@ public class UserRepositoryImpl implements UserRepository {
             final var aUserString = Optional.ofNullable(this.redisTemplate.opsForValue().get(USER_CACHE_KEY.concat(id.toString())));
 
             if (aUserString.isPresent()) {
+                log.debug("User found in cache by id and deleting: {}", id);
                 final var aUser = Json.readValue(aUserString.get(), UserCacheEntity.class);
 
                 this.redisTemplate.delete(USER_CACHE_KEY.concat(id.toString()));
                 this.redisTemplate.delete(USER_EMAIL_CACHE_KEY.concat(aUser.getEmail()));
+                log.info("User deleted in cache by id: {}", id);
             }
 
             this.userJpaEntityRepository.deleteById(id);
