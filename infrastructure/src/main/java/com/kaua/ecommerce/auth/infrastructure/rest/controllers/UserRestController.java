@@ -36,6 +36,7 @@ public class UserRestController implements UserRestApi {
     private final GetUserByIdUseCase getUserByIdUseCase;
     private final ConfirmUserEmailUseCase confirmUserEmailUseCase;
     private final ChangeUserPasswordUseCase changeUserPasswordUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
 
     public UserRestController(
             final CreateUserUseCase createUserUseCase,
@@ -48,7 +49,8 @@ public class UserRestController implements UserRestApi {
             final RemoveUserRoleUseCase removeUserRoleUseCase,
             final GetUserByIdUseCase getUserByIdUseCase,
             final ConfirmUserEmailUseCase confirmUserEmailUseCase,
-            final ChangeUserPasswordUseCase changeUserPasswordUseCase
+            final ChangeUserPasswordUseCase changeUserPasswordUseCase,
+            final DeleteUserUseCase deleteUserUseCase
     ) {
         this.createUserUseCase = Objects.requireNonNull(createUserUseCase);
         this.createUserMfaUseCase = Objects.requireNonNull(createUserMfaUseCase);
@@ -61,6 +63,7 @@ public class UserRestController implements UserRestApi {
         this.getUserByIdUseCase = Objects.requireNonNull(getUserByIdUseCase);
         this.confirmUserEmailUseCase = Objects.requireNonNull(confirmUserEmailUseCase);
         this.changeUserPasswordUseCase = Objects.requireNonNull(changeUserPasswordUseCase);
+        this.deleteUserUseCase = Objects.requireNonNull(deleteUserUseCase);
     }
 
     @Override
@@ -211,6 +214,16 @@ public class UserRestController implements UserRestApi {
         this.markAsDeleteUserUseCase.execute(aInput);
 
         log.info("User soft deleted successfully");
+    }
+
+    @Override
+    public void deleteUserById(final String id) {
+        log.debug("Received request to delete user by id: {}", id);
+
+        final var aInput = new UserId(UUID.fromString(id));
+
+        this.deleteUserUseCase.execute(aInput);
+        log.info("User deleted successfully");
     }
 
     @Override
