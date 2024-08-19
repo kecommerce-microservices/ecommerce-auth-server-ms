@@ -136,4 +136,24 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean existsByEmail(final String email) {
         return this.userJpaEntityRepository.existsByEmail(email);
     }
+
+    @Transactional
+    @Override
+    public void deleteByUserId(final UUID id) {
+        if (this.userJpaEntityRepository.existsById(id)) {
+            log.debug("Deleting user by id: {}", id);
+            final var aUserString = Optional.ofNullable(this.redisTemplate.opsForValue().get(USER_CACHE_KEY.concat(id.toString())));
+
+            if (aUserString.isPresent()) {
+                final var aUser = Json.readValue(aUserString.get(), UserCacheEntity.class);
+
+                this.redisTemplate.delete(USER_CACHE_KEY.concat(id.toString()));
+                this.redisTemplate.delete(USER_EMAIL_CACHE_KEY.concat(aUser.getEmail()));
+            }
+
+            this.userJpaEntityRepository.deleteById(id);
+
+            log.info("User deleted by id: {}", id);
+        }
+    }
 }
