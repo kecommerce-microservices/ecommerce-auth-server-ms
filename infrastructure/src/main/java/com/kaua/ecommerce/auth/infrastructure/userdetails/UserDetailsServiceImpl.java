@@ -46,7 +46,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new UserDetailsImpl(
                 aUser.getId().toString(),
                 aUser.getPassword(),
-                getAuthorities(aUser)
+                getAuthorities(aUser),
+                aUser.getCustomerId().toString()
         );
     }
 
