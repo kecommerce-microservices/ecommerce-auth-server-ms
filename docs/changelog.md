@@ -1,6 +1,7 @@
 # 0.3.*
 - [X] Adicionado o cache do usuário
 - [X] Adicionado o delete by id do usuário
+- [X] Adicionado o customerId no jwt token
 
 # 0.2.0
 - [X] Adicionado a criação do usuário

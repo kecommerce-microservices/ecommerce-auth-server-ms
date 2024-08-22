@@ -1,5 +1,6 @@
 package com.kaua.ecommerce.auth.infrastructure.configurations.authentication;
 
+import com.kaua.ecommerce.auth.infrastructure.oauth2.grants.utils.CustomTokenClaimsUtils;
 import com.kaua.ecommerce.auth.infrastructure.userdetails.UserDetailsImpl;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
@@ -31,7 +32,8 @@ public class JwtConverter implements Converter<Jwt, AbstractAuthenticationToken>
         return new UserDetailsImpl(
                 jwt.getClaimAsString(JwtClaimNames.SUB),
                 null,
-                extractAuthorities(jwt)
+                extractAuthorities(jwt),
+                jwt.getClaimAsString(CustomTokenClaimsUtils.CUSTOMER_ID)
         );
     }
 

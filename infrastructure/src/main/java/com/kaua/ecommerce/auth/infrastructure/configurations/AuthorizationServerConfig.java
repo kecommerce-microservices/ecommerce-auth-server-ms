@@ -193,7 +193,8 @@ public class AuthorizationServerConfig {
                         .claim(CustomTokenClaimsUtils.AUTHORITIES, aUserDetails.getAuthorities()
                                 .stream()
                                 .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toSet()));
+                                .collect(Collectors.toSet()))
+                        .claim(CustomTokenClaimsUtils.CUSTOMER_ID, aUserDetails.customerId());
             }
         };
     }

@@ -12,7 +12,8 @@ import java.util.Collection;
 public record UserDetailsImpl(
         String id,
         String password,
-        Collection<? extends GrantedAuthority> authorities
+        Collection<? extends GrantedAuthority> authorities,
+        String customerId
 ) implements UserDetails {
 
     @Override

@@ -28,7 +28,8 @@ public interface ApiTest {
                 new UserDetailsImpl(
                         userId,
                         "123456",
-                        List.of(new SimpleGrantedAuthority("admin")))
+                        List.of(new SimpleGrantedAuthority("admin")),
+                        IdentifierUtils.generateNewId())
         ));
     }
 
