@@ -150,7 +150,7 @@ jobs:
           echo "BUILD_TAG --> ${{ env.BUILD_TAG }}"
 
       - name: Log in to Docker Hub
-        run: docker/login-action@v3
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PWD }}
